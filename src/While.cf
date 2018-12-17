@@ -26,7 +26,6 @@ BFalse. Boolean ::= "false";
 
 TBool.  Type ::= "bool";
 TInt.   Type ::= "int";
-TVoid.  Type ::= "void";
 
 comment "#";
 comment "//";

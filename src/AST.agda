@@ -15,12 +15,11 @@ data Id : Set where
 {-# COMPILE GHC Id = data Ident (Ident) #-}
 
 data Type : Set where
-  bool int void : Type
+  bool int : Type
 
 {-# COMPILE GHC Type = data Type
   ( TBool
   | TInt
-  | TVoid
   ) #-}
 
 data Boolean : Set where
