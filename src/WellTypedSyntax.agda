@@ -5,6 +5,8 @@ module WellTypedSyntax where
 open import Library
 open import AST using (Type; bool; int)
 
+-- Variables are de Bruijn indices into the context, a list of types.
+
 Cxt = List Type
 
 Var : (Γ : Cxt) (t : Type) → Set
@@ -18,34 +20,17 @@ _▷_ : Cxt → CxtExt → Cxt
 Δ ▷ nothing = Δ
 Δ ▷ just t  = t ∷ Δ
 
--- Types that support arithmetic operations
+-- Arithmetical operators.
 
-data ArithType : Type → Set where
-  int    : ArithType int
+data ArithOp : Set where
+  plus minus : ArithOp
 
--- Arithmetical operators
-
-data ArithOp (t : Type) : Set where
-  plus minus : (a : ArithType t) → ArithOp t
-
--- Comparison operators
-
-data CmpOp (t : Type) : Set where
-  gt : (a : ArithType t) → CmpOp t
-
--- Logical operators
-
-data LogicOp : Set where
-  and : LogicOp
-
--- Binary Operators
+-- Binary Operators.
 
 data Op : (t t' : Type) → Set where
-  arith : ∀{t} (op : ArithOp t) → Op t t
-  cmp   : ∀{t} (op : CmpOp t) → Op t bool
-  logic : (op : LogicOp) → Op bool bool
-
--- The signature is fixed in both expressions and statements.
+  arith : (op : ArithOp) → Op int int
+  gt    : Op int bool
+  and   : Op bool bool
 
 -- Well-typed expressions: context is fixed.
 
@@ -55,7 +40,7 @@ data Exp (Γ : Cxt): Type → Set where
   eVar  : ∀{t}    (x : Var Γ t)                   → Exp Γ t
   eOp   : ∀{t t'} (op : Op t t') (e e' : Exp Γ t) → Exp Γ t'
 
--- Well-typed statements (might extend the context)
+-- Well-typed statements (might extend the context).
 
 mutual
 
@@ -75,6 +60,8 @@ _++ˢ_ : ∀{Γ Γ' Γ''} → Stms Γ Γ' → Stms Γ' Γ'' → Stms Γ Γ''
 []       ++ˢ ss' = ss'
 (s ∷ ss) ++ˢ ss' = s ∷ (ss ++ˢ ss')
 
+-- A program is a list of statements and a final expression.
+
 record Program : Set where
   constructor program
   field
@@ -82,10 +69,12 @@ record Program : Set where
     theStms : Stms [] Γ
     theMain : Exp Γ int
 
--- Testing types
+-- Auxiliary functions:
 
-arithType? : ∀ t → Dec (ArithType t)
-arithType? int    = yes int
+-- Testing types.
+
+arithType? : ∀ t → Dec (t ≡ int)
+arithType? int    = yes refl
 arithType? bool   = no λ()
 
 module TypeEq where
