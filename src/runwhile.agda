@@ -3,7 +3,7 @@
 module runwhile where
 
 open import Library
--- open import WellTypedSyntax using (Program)
+open import WellTypedSyntax using (Program)
 -- open import TypeChecker     using (printError; module CheckProgram)
 
 import AST as A
