@@ -1,0 +1,12 @@
+*~
+a.out
+*.o
+*.hi
+*.agdai
+*.class
+*.j
+*.log
+trash
+trash.md
+/src/While/
+/src/Main

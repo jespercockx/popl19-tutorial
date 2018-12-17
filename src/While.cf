@@ -1,0 +1,33 @@
+-- WHILE language (C compatible syntax)
+
+Prg.    Program ::= "int" "main" "(" ")" "{" [Stm] "printInt" Exp4 ";" "}";
+
+SDecl.  Stm ::= Type Ident "=" Exp ";";
+SAss.   Stm ::= Ident "=" Exp ";";
+SWhile. Stm ::= "while" Exp4 "{" [Stm] "}";
+SIf.    Stm ::= "if" Exp4 "{" [Stm] "}" "else" "{" [Stm] "}" ;
+
+terminator Stm "";
+
+EId.   Exp3 ::= Ident;
+EInt.  Exp3 ::= Integer;
+EBool. Exp3 ::= Boolean;
+
+ENot.  Exp3 ::= "!" Exp3;
+EAdd.  Exp2 ::= Exp3 "+" Exp2;
+ESub.  Exp2 ::= Exp3 "-" Exp2;
+EGt.   Exp1 ::= Exp2 ">" Exp2;
+EAnd.  Exp  ::= Exp1 "&&" Exp;
+
+coercions Exp 4;
+
+BTrue. Boolean ::= "true";
+BFalse.Boolean ::= "false";
+
+TBool. Type ::= "bool";
+TInt.  Type ::= "int";
+TVoid. Type ::= "void";
+
+comment "#";
+comment "//";
+comment "/*" "*/";
