@@ -1,19 +1,33 @@
 # Makefile for While language
 
-## Variables
+# List of goals not corresponding to file names.
+.PHONY : test sdist clean distclean
+
+# BNFC generated parser
+parser=While/Test
+
+## Agda program
+###########################################################################
+
+agda=agda
+ghcflags=--ghc-flag=-i../haskell --ghc-flag=-Wwarn
+
+# runwhile.agda must be first
+agdafiles=runwhile.agda Library.agda AST.agda Parser.agda
+#WellTypedSyntax.agda TypeChecker.agda Value.agda Evaluation.agda IOTree.agda Interpreter.agda
+
+runwhile : $(agdafiles) $(parser)
+	$(agda) --compile $(ghcflags) $<
+
+test : runwhile
+	make -C ../test
+
+## Haskell parser
 ###########################################################################
 
 files=Main.hs While.cf Makefile
 
-###########################################################################
-
-# List of goals not corresponding to file names.
-.PHONY : sdist clean distclean
-
-# 'Main' is default goal and needs to remain first goal in this file!
-# The extra dependency While/Test ensures that the parser is built from While.cf
-
-Main : $(files) While/Test
+Main : $(files) $(parser)
 	ghc --make Main.hs -o Main
 
 # Rules to build the parser:
@@ -28,7 +42,7 @@ While/Test.hs While/Lex.x While/Par.y : While.cf
 %.hs : %.x
 	alex --ghc $<
 
-While/Test : While/Test.hs While/Par.hs While/Lex.hs
+$(parser) : While/Test.hs While/Par.hs While/Lex.hs
 	ghc --make $< -o $@
 
 # Rules for cleaning generated files:

@@ -1,4 +1,5 @@
-run=../src/Main
+run=../src/runwhile
+#../src/Main
 
 default:
 	$(run) fib.c
