@@ -13,8 +13,8 @@ agda=agda
 ghcflags=--ghc-flag=-i../haskell --ghc-flag=-Wwarn
 
 # runwhile.agda must be first
-agdafiles=runwhile.agda Library.agda AST.agda Parser.agda WellTypedSyntax.agda
-# TypeChecker.agda Value.agda Evaluation.agda IOTree.agda Interpreter.agda
+agdafiles=runwhile.agda Library.agda AST.agda Parser.agda WellTypedSyntax.agda TypeChecker.agda
+# Value.agda Evaluation.agda IOTree.agda Interpreter.agda
 
 runwhile : $(agdafiles) $(parser)
 	$(agda) --compile $(ghcflags) $<

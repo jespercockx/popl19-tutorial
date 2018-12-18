@@ -62,8 +62,12 @@ data Stm : Set where
   | SIfElse
   ) #-}
 
-data Program : Set where
-  program : (ss : List Stm) (e : Exp) → Program
+record Program : Set where
+  constructor program
+  field
+    theStms : List Stm
+    theMain : Exp
+open Program public
 
 {-# COMPILE GHC Program = data Program (Prg) #-}
 

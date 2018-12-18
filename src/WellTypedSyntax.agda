@@ -3,7 +3,7 @@
 module WellTypedSyntax where
 
 open import Library
-open import AST using (Type; bool; int)
+open import AST public using (Type; bool; int; Boolean; true; false)
 
 -- Variables are de Bruijn indices into the context, a list of types.
 
@@ -36,7 +36,7 @@ data Op : (t t' : Type) → Set where
 
 data Exp (Γ : Cxt): Type → Set where
   eInt  : (i : ℤ)                                 → Exp Γ int
-  eBool : (b : Bool)                              → Exp Γ bool
+  eBool : (b : Boolean)                           → Exp Γ bool
   eVar  : ∀{t}    (x : Var Γ t)                   → Exp Γ t
   eOp   : ∀{t t'} (op : Op t t') (e e' : Exp Γ t) → Exp Γ t'
 
@@ -68,6 +68,7 @@ record Program : Set where
     {Γ}     : Cxt
     theStms : Stms [] Γ
     theMain : Exp Γ int
+open Program public
 
 -- Auxiliary functions:
 

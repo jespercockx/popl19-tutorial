@@ -34,7 +34,7 @@ open import Level             public using (_⊔_)
 
 open import IO.Primitive      public using (IO)
 
-open import Relation.Binary.PropositionalEquality public using (_≡_; refl; cong; subst)
+open import Relation.Binary.PropositionalEquality public using (_≡_; _≢_; refl; cong; subst)
 open import Relation.Binary public using (Decidable; Rel)
 open import Relation.Nullary public using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable public using (⌊_⌋)

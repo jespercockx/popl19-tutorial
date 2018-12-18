@@ -4,7 +4,7 @@ module runwhile where
 
 open import Library
 open import WellTypedSyntax using (Program)
--- open import TypeChecker     using (printError; module CheckProgram)
+open import TypeChecker     using (printError; checkProgram)
 
 import AST as A
 import Parser
@@ -28,10 +28,9 @@ parse contents = do
   open IOMonad
   open Parser using (Err; ok; bad)
 
-{-
 -- Type check.
 
-check : A.Program → IO (∃ Program)
+check : A.Program → IO Program
 check prg = do
   case checkProgram prg of λ where
     (fail err) → do
@@ -44,12 +43,12 @@ check prg = do
   where
   open IOMonad
   open ErrorMonad   using (fail; ok)
-  open CheckProgram using (checkProgram)
 
+{-
 -- Interpret.
 
-run : ∃ Program → IO ⊤
-run (Σ , prg') = runProgram prg'
+run : Program → IO ⊤
+run prg' = runProgram prg'
   where open Interpreter using (runProgram)
 -}
 
@@ -66,8 +65,9 @@ usage = do
 runwhile : IO ⊤
 runwhile = do
   file ∷ [] ← getArgs where _ → usage
-  -- run =<< check =<< parse =<< readFiniteFile file
-  putStrLn ∘ A.printProgram =<< parse =<< readFiniteFile file
+  prg ← check =<< parse =<< readFiniteFile file
+  -- putStrLn ∘ A.printProgram =<< parse =<< readFiniteFile file
+  return _
   where open IOMonad
 
 main = runwhile
