@@ -78,11 +78,13 @@ printId (mkId s) = String.fromList s
 
 postulate
   printType    : Type    → String
+  printBoolean : Boolean → String
   printExp     : Exp     → String
   printStm     : Stm     → String
   printProgram : Program → String
 
-{-# COMPILE GHC printType    = \ t -> Data.Text.pack (printTree (t :: Type)) #-}
-{-# COMPILE GHC printExp     = \ e -> Data.Text.pack (printTree (e :: Exp))  #-}
-{-# COMPILE GHC printStm     = \ s -> Data.Text.pack (printTree (s :: Stm))  #-}
+{-# COMPILE GHC printType    = \ t -> Data.Text.pack (printTree (t :: Type))    #-}
+{-# COMPILE GHC printBoolean = \ b -> Data.Text.pack (printTree (b :: Boolean)) #-}
+{-# COMPILE GHC printExp     = \ e -> Data.Text.pack (printTree (e :: Exp))     #-}
+{-# COMPILE GHC printStm     = \ s -> Data.Text.pack (printTree (s :: Stm))     #-}
 {-# COMPILE GHC printProgram = \ p -> Data.Text.pack (printTree (p :: Program)) #-}

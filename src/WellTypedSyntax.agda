@@ -3,7 +3,7 @@
 module WellTypedSyntax where
 
 open import Library
-open import AST public using (Type; bool; int; Boolean; true; false)
+open import AST public using (Type; bool; int; Boolean; true; false; printBoolean)
 
 -- Variables are de Bruijn indices into the context, a list of types.
 
