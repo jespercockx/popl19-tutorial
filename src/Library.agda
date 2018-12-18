@@ -292,6 +292,7 @@ module IOMonad where
 postulate
   exitFailure    : ∀{a} {A : Set a} → IO A
   getArgs        : IO (List String)
+  putStr         : String → IO ⊤
   putStrLn       : String → IO ⊤
   readFiniteFile : String → IO String
   readInt        : IO ℤ
@@ -299,6 +300,7 @@ postulate
 
 {-# COMPILE GHC exitFailure    = \ _ _ -> System.Exit.exitFailure #-}
 {-# COMPILE GHC getArgs        = map Data.Text.pack <$> System.Environment.getArgs #-}
+{-# COMPILE GHC putStr         = System.IO.putStr   . Data.Text.unpack #-}
 {-# COMPILE GHC putStrLn       = System.IO.putStrLn . Data.Text.unpack #-}
 {-# COMPILE GHC readFiniteFile = Data.Text.IO.readFile . Data.Text.unpack #-}
 {-# COMPILE GHC readInt        = (System.IO.readLn :: System.IO.IO Integer) #-}

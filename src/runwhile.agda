@@ -35,7 +35,7 @@ check prg = do
   case checkProgram prg of λ where
     (fail err) → do
       putStrLn "TYPE ERROR"
-      putStrLn (A.printProgram prg)
+      putStr   (A.printProgram prg)
       putStrLn "The type error is:"
       putStrLn (printError err)
       exitFailure
