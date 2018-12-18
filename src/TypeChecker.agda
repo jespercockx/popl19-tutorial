@@ -110,7 +110,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
       (t , x') ← lookupVar (idToName x)
       return (t , eVar x')
 
-    inferExp (A.eNot   e)     = (bool ,_) <$> checkExp e bool
+    inferExp (A.eNot   e)     = ((bool ,_) ∘′ eNot) <$> checkExp e bool
     inferExp (A.ePlus  e₁ e₂) = inferOp (arith plus)  e₁ e₂
     inferExp (A.eMinus e₁ e₂) = inferOp (arith minus) e₁ e₂
 
@@ -231,7 +231,7 @@ module CheckStatements where
 
   addVar : ∀{Γ} (x : Name) t → TCStm Γ (t ∷ Γ) ⊤
   addVar {Γ = Γ} x t .runTCStm γ =
-    -- Try to uniquely extend the top block.
+    -- Try to uniquely extend the context.
     case t ↦ x ∷ᵘ? uniq γ of λ where
       (yes us) → ok (_ , record { uniq = us })
       (no _)  → fail (shadowingDeclaration x)
@@ -264,8 +264,8 @@ module CheckStatements where
       return (sAss x' e')
 
     checkStm (A.sInit t x e) = do
-      addVar (idToName x) t
       e' ← lift $ checkExp e t
+      addVar (idToName x) t
       return (sInit e')
 
     checkStm (A.sWhile e ss) = do

@@ -34,10 +34,11 @@ data Op : (t t' : Type) → Set where
 
 -- Well-typed expressions: context is fixed.
 
-data Exp (Γ : Cxt): Type → Set where
+data Exp (Γ : Cxt) : Type → Set where
   eInt  : (i : ℤ)                                 → Exp Γ int
   eBool : (b : Boolean)                           → Exp Γ bool
   eVar  : ∀{t}    (x : Var Γ t)                   → Exp Γ t
+  eNot  : (e : Exp Γ bool)                        → Exp Γ bool
   eOp   : ∀{t t'} (op : Op t t') (e e' : Exp Γ t) → Exp Γ t'
 
 -- Well-typed statements (might extend the context).
@@ -45,7 +46,7 @@ data Exp (Γ : Cxt): Type → Set where
 mutual
 
   data Stm (Γ : Cxt) : CxtExt → Set where
-    sInit   : ∀{t}     (e : Exp (t ∷ Γ) t)                                → Stm Γ (just t)
+    sInit   : ∀{t}     (e : Exp Γ t)                                      → Stm Γ (just t)
     sAss    : ∀{t}     (x : Var Γ t) (e : Exp Γ t)                        → Stm Γ nothing
     sWhile  : ∀{Γ'}    (e : Exp Γ bool) (s  : Stms Γ Γ')                  → Stm Γ nothing
     sIfElse : ∀{Γ₁ Γ₂} (e : Exp Γ bool) (s₁ : Stms Γ Γ₁) (s₂ : Stms Γ Γ₂) → Stm Γ nothing
@@ -54,11 +55,11 @@ mutual
     []  : Stms Γ Γ
     _∷_ : ∀{mt} (s : Stm Γ mt) {Γ′} (ss : Stms (Γ ▷ mt) Γ′) → Stms Γ Γ′
 
--- Stms can be concatenated.
+-- -- Stms can be concatenated.
 
-_++ˢ_ : ∀{Γ Γ' Γ''} → Stms Γ Γ' → Stms Γ' Γ'' → Stms Γ Γ''
-[]       ++ˢ ss' = ss'
-(s ∷ ss) ++ˢ ss' = s ∷ (ss ++ˢ ss')
+-- _++ˢ_ : ∀{Γ Γ' Γ''} → Stms Γ Γ' → Stms Γ' Γ'' → Stms Γ Γ''
+-- []       ++ˢ ss' = ss'
+-- (s ∷ ss) ++ˢ ss' = s ∷ (ss ++ˢ ss')
 
 -- A program is a list of statements and a final expression.
 
