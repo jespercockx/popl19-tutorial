@@ -4,13 +4,7 @@ open import Library
 open import WellTypedSyntax
 open import Value
 
-open import Delay as Del public using (force; now; later) renaming (∞Delay to Delay; module ∞Delay to ∞Delay)
-
-module Delay where
-  open Del public using (force; now; later) renaming (_∞>>=_ to _>>=_)
-
-  return : ∀{i A} (a : A) → Delay i A
-  return a .force = now a
+open import Delay public using (Delay; module DelayMonad; force; later')
 
 -- Evaluation of expressions.
 
@@ -48,7 +42,7 @@ module ExecStm where
       (k : A → Exec i Γ′ Γ″ B)
              → Exec i Γ  Γ″ B
     (m >>= k) .runExec ρ = m .runExec ρ Delay.>>= λ where
-      (a , ρ') → {! k a .runExec ρ' !}
+      (a , ρ') → k a .runExec ρ'
 
     _=<<_ : ∀{i Γ Γ′ Γ″ A B}
       (k : A → Exec i Γ′ Γ″ B)
@@ -73,7 +67,7 @@ module ExecStm where
     modify f .runExec ρ = Delay.return (_ , f ρ)
 
     newScope : ∀{i Γ Γ' A} → Exec i Γ Γ' A → Exec i Γ Γ A
-    newScope m .runExec ρ = {! Delay.<$> m .runExec ρ !}
+    newScope m .runExec ρ = {!λ{ (a , ρ') → !} Delay.<$> m .runExec ρ
 
     -- Evaluate an expression.
 
@@ -100,7 +94,7 @@ module ExecStm where
           false → return _
         newScope $ execStms ss
         -- The recursive call needs to be guarded:
-        λ{ .runExec γ .force → later $ execStm (sWhile e ss) .runExec γ }
+        λ{ .runExec γ .force → later' $ execStm (sWhile e ss) .runExec γ }
 
       execStm (sIfElse e ss ss') = do
         b ← evalExp e
@@ -122,7 +116,7 @@ module ExecStm where
 evalPrg : ∀{i} (prg : Program) → Delay i ℤ
 evalPrg (program ss e) = do
   (_ , ρ) ← ExecStm.execStms ss .ExecStm.runExec []
-  {!return $ EvalExp.eval ρ e !}
-  where open Delay
+  return $ EvalExp.eval ρ e
+  where open DelayMonad
 
 -- -}
