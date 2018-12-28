@@ -54,6 +54,13 @@ module _ {i : Size} where
   open module DelayMonad = RawMonad (delayMonad {i = i})
                            public using (_<$>_) renaming (_⊛_ to _<*>_)
 
+{-# NON_TERMINATING #-}
+
+runDelay : ∀{A} → Delay ∞ A → A
+runDelay m = case m .force of λ where
+  (return' a) → a
+  (later' m') → runDelay m'
+
 -- -}
 -- -}
 -- -}

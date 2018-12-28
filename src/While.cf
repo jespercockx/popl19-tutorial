@@ -1,8 +1,11 @@
 -- WHILE language (C compatible syntax)
 
-Prg.    Program ::= "int" "main" "(" ")" "{" [Stm] "printInt" Exp4 ";" "}";
+Prg.    Program ::= "int" "main" "(" ")" "{" [Decl] [Stm] "printInt" Exp4 ";" "}";
 
-SInit.  Stm ::= Type Ident "=" Exp ";";
+DInit.  Decl ::= Type Ident "=" Exp ";";
+
+terminator Decl "";
+
 SAss.   Stm ::= Ident "=" Exp ";";
 SWhile. Stm ::= "while" Exp4 "{" [Stm] "}";
 SIfElse.Stm ::= "if" Exp4 "{" [Stm] "}" "else" "{" [Stm] "}" ;

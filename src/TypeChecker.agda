@@ -136,7 +136,37 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
       e₂' ← checkExp e₂ t
       return (t' , eOp op e₁' e₂')
 
--- The statement checker calls the expression checker.
+  mutual
+
+    -- Checking a single statement.
+
+    checkStm : (s : A.Stm) → M (Stm Γ)
+
+    checkStm (A.sAss x e) = do
+      (t , x') ← lookupVar (idToName x)
+      e' ← checkExp e t
+      return (sAss x' e')
+
+    checkStm (A.sWhile e ss) = do
+      e'  ← checkExp e bool
+      ss' ← checkStms ss
+      return (sWhile e' ss')
+
+    checkStm (A.sIfElse e ss₁ ss₂) = do
+      e'   ← checkExp e bool
+      ss₁' ← checkStms ss₁
+      ss₂' ← checkStms ss₂
+      return (sIfElse e' ss₁' ss₂')
+
+    -- Checking a list of statements.
+
+    checkStms : (ss : List A.Stm) → M (Stms Γ)
+    checkStms []       = return []
+    checkStms (s ∷ ss) = do
+      s' ← checkStm s
+      (s' ∷_) <$> checkStms ss
+
+-- The declaration checker calls the expression checker.
 -- Exported interface of expression checker:
 
 -- Monad for checking expressions
@@ -149,88 +179,82 @@ open TCExp
 lookupVar : ∀{Γ} (x : Name) → TCExp Γ (∃ λ t → Var Γ t)
 lookupVar x .runTCExp γ = CheckExpressions.lookupVar γ x
 
-inferExp : ∀{Γ} (e : A.Exp) → TCExp Γ (∃ λ (t : Type) → Exp Γ t)
-inferExp e .runTCExp γ = CheckExpressions.inferExp γ e
+-- inferExp : ∀{Γ} (e : A.Exp) → TCExp Γ (∃ λ (t : Type) → Exp Γ t)
+-- inferExp e .runTCExp γ = CheckExpressions.inferExp γ e
 
 checkExp : ∀{Γ} (e : A.Exp) (t : Type) → TCExp Γ (Exp Γ t)
 checkExp e t .runTCExp γ = CheckExpressions.checkExp γ e t
 
--- Checking statements.
+checkStms : ∀{Γ} (ss : List A.Stm) → TCExp Γ (Stms Γ)
+checkStms ss .runTCExp γ = CheckExpressions.checkStms γ ss
+
+-- Checking declarations.
 ---------------------------------------------------------------------------
 
--- Monad for checking statements.
+-- Monad for checking declarations.
 
 -- Variable declarations can be inserted into the top block, thus,
 -- we need to treat the top block as mutable state.
 
-record TCStm Γ Γ' (A : Set) : Set where
+record TCDecl Γ Γ' (A : Set) : Set where
   field
-    runTCStm : TCCxt Γ → Error (A × TCCxt Γ')
-open TCStm
+    runTCDecl : TCCxt Γ → Error (A × TCCxt Γ')
+open TCDecl
 
 -- Signature and return type stay fixed during checking of expressions.
 
-module CheckStatements where
+module CheckDeclarations where
 
-  -- TCStm is a monad.
+  -- TCDecl is a monad.
 
   -- Return.
 
-  return : ∀{Γ A} (a : A) → TCStm Γ Γ A
-  return a .runTCStm γ = ok (a , γ)
+  return : ∀{Γ A} (a : A) → TCDecl Γ Γ A
+  return a .runTCDecl γ = ok (a , γ)
 
   -- Bind.
 
   _>>=_ : ∀{Γ Γ′ Γ″ A B}
-    (m :     TCStm Γ  Γ′ A)
-    (k : A → TCStm Γ′ Γ″ B)
-           → TCStm Γ  Γ″ B
+    (m :     TCDecl Γ  Γ′ A)
+    (k : A → TCDecl Γ′ Γ″ B)
+           → TCDecl Γ  Γ″ B
 
-  (m >>= k) .runTCStm γ =
-    case m .runTCStm γ of λ where
+  (m >>= k) .runTCDecl γ =
+    case m .runTCDecl γ of λ where
       (fail err)    → fail err
-      (ok (a , γ')) → k a .runTCStm γ'
+      (ok (a , γ')) → k a .runTCDecl γ'
 
   -- Sequence.
 
   _>>_  : ∀{Γ Γ′ Γ″ B}
-    (m  : TCStm Γ  Γ′ ⊤)
-    (m' : TCStm Γ′ Γ″ B)
-        → TCStm Γ  Γ″ B
+    (m  : TCDecl Γ  Γ′ ⊤)
+    (m' : TCDecl Γ′ Γ″ B)
+        → TCDecl Γ  Γ″ B
   m >> m' = m >>= λ _ → m'
 
   -- Map.
 
-  _<$>_ : ∀{Γ Γ' A B} (f : A → B) → TCStm Γ Γ' A → TCStm Γ Γ' B
+  _<$>_ : ∀{Γ Γ' A B} (f : A → B) → TCDecl Γ Γ' A → TCDecl Γ Γ' B
   f <$> m = m >>= (return ∘′ f)
 
 
-  -- Error raising.
+  -- -- Error raising.
 
-  throwError : ∀{Γ Γ' A} → TypeError → TCStm Γ Γ' A
-  throwError err .runTCStm γ = fail err
+  -- throwError : ∀{Γ Γ' A} → TypeError → TCDecl Γ Γ' A
+  -- throwError err .runTCDecl γ = fail err
 
-  -- Lifting a TCExp computation into TCStm.
+  -- Lifting a TCExp computation into TCDecl.
 
-  lift : ∀{Γ A} (m : TCExp Γ A) → TCStm Γ Γ A
-  lift m .runTCStm γ =
+  lift : ∀{Γ A} (m : TCExp Γ A) → TCDecl Γ Γ A
+  lift m .runTCDecl γ =
     case m .runTCExp γ of λ where
       (fail err) → fail err
       (ok a)     → ok (a , γ)
 
-  -- In a new scope.
-
-  newScope : ∀{Γ Γ' A} (m : TCStm Γ Γ' A) → TCStm Γ Γ A
-  newScope m .runTCStm γ =
-
-    case m .runTCStm γ of λ where
-      (fail err)   → fail err  -- Here, err changes into a different context.
-      (ok (a , _)) → ok (a , γ)
-
   -- Add a variable declaration.
 
-  addVar : ∀{Γ} (x : Name) t → TCStm Γ (t ∷ Γ) ⊤
-  addVar {Γ = Γ} x t .runTCStm γ =
+  addVar : ∀{Γ} (x : Name) t → TCDecl Γ (t ∷ Γ) ⊤
+  addVar {Γ = Γ} x t .runTCDecl γ =
     -- Try to uniquely extend the context.
     case t ↦ x ∷ᵘ? uniq γ of λ where
       (yes us) → ok (_ , record { uniq = us })
@@ -240,66 +264,48 @@ module CheckStatements where
 
   -- Predicting the next shape of the top block.
 
-  cext : (Γ : Cxt) (s : A.Stm) → CxtExt
-  cext Γ (A.sInit t x e)     = just t
-  cext Γ (A.sAss x e)        = nothing
-  cext Γ (A.sWhile e s)      = nothing
-  cext Γ (A.sIfElse e s s₁)  = nothing
+  cext : (s : A.Decl) → Type
+  cext (A.dInit t x e)     = t
 
-  Next : (Γ : Cxt) (s : A.Stm) → Cxt
-  Next Γ s = Γ ▷ cext Γ s
+  Next : (Γ : Cxt) (s : A.Decl) → Cxt
+  Next Γ s = cext s ∷ Γ
 
-  Nexts : (Γ : Cxt) (ss : List A.Stm) → Cxt
+  Nexts : (Γ : Cxt) (ss : List A.Decl) → Cxt
   Nexts = List.foldl Next
 
   mutual
 
-    -- Checking a single statement.
+    -- Checking a single declaration.
 
-    checkStm : ∀ {Γ} (s : A.Stm) (let mt = cext Γ s) → TCStm Γ (Γ ▷ mt) (Stm Γ mt)
+    checkDecl : ∀ {Γ} (d : A.Decl) (let t = cext d) → TCDecl Γ (t ∷ Γ) (Decl Γ t)
 
-    checkStm (A.sAss x e) = do
-      (t , x') ← lift $ lookupVar (idToName x)
-      e' ← lift $ checkExp e t
-      return (sAss x' e')
-
-    checkStm (A.sInit t x e) = do
+    checkDecl (A.dInit t x e) = do
       e' ← lift $ checkExp e t
       addVar (idToName x) t
-      return (sInit e')
+      return (dInit e')
 
-    checkStm (A.sWhile e ss) = do
-      e'  ← lift $ checkExp e bool
-      ss' ← newScope $ checkStms ss
-      return (sWhile e' ss')
+    -- Checking a list of declarations.
 
-    checkStm (A.sIfElse e ss₁ ss₂) = do
-      e'   ← lift $ checkExp e bool
-      ss₁' ← newScope $ checkStms ss₁
-      ss₂' ← newScope $ checkStms ss₂
-      return (sIfElse e' ss₁' ss₂')
+    checkDecls : ∀ {Γ} (ds : List A.Decl) (let Γ' = Nexts Γ ds) → TCDecl Γ Γ' (Decls Γ Γ')
+    checkDecls []       = return []
+    checkDecls (d ∷ ds) = do
+      d' ← checkDecl d
+      (d' ∷_) <$> checkDecls ds
 
-    -- Checking a list of statements.
+  -- Checking the program in TCDecl.
 
-    checkStms : ∀ {Γ} (ss : List A.Stm) (let Γ' = Nexts Γ ss) → TCStm Γ Γ' (Stms Γ Γ')
-    checkStms []       = return []
-    checkStms (s ∷ ss) = do
-      s' ← checkStm s
-      (s' ∷_) <$> checkStms ss
-
-  -- Checking the program in TCStm.
-
-  checkProgram : (prg : A.Program) → TCStm [] (Nexts [] (A.theStms prg)) Program
-  checkProgram (A.program ss e) = do
-    ss' ← checkStms ss
+  checkProgram : (prg : A.Program) → TCDecl [] (Nexts [] (A.theDecls prg)) Program
+  checkProgram (A.program ds ss e) = do
+    ds' ← checkDecls ds
+    ss' ← lift $ checkStms ss
     e'  ← lift $ checkExp e int
-    return (program ss' e')
+    return (program ds' ss' e')
 
 -- Checking the program.
 ---------------------------------------------------------------------------
 
 checkProgram : (prg : A.Program) → Error Program
-checkProgram prg = proj₁ <$> CheckStatements.checkProgram prg .runTCStm []ⁿ
+checkProgram prg = proj₁ <$> CheckDeclarations.checkProgram prg .runTCDecl []ⁿ
   where open ErrorMonad
 
 

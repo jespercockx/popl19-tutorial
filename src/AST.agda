@@ -49,15 +49,20 @@ data Exp : Set where
   | EAnd
   ) #-}
 
+data Decl : Set where
+  dInit   : (t : Type) (x : Id) (e : Exp) → Decl
+
+{-# COMPILE GHC Decl = data Decl
+  ( DInit
+  ) #-}
+
 data Stm : Set where
-  sInit   : (t : Type) (x : Id) (e : Exp) → Stm
   sAss    : (x : Id) (e : Exp)            → Stm
   sWhile  : (e : Exp) (ss : List Stm)     → Stm
   sIfElse : (e : Exp) (ss ss' : List Stm) → Stm
 
 {-# COMPILE GHC Stm = data Stm
-  ( SInit
-  | SAss
+  ( SAss
   | SWhile
   | SIfElse
   ) #-}
@@ -65,8 +70,9 @@ data Stm : Set where
 record Program : Set where
   constructor program
   field
-    theStms : List Stm
-    theMain : Exp
+    theDecls : List Decl
+    theStms  : List Stm
+    theMain  : Exp
 open Program public
 
 {-# COMPILE GHC Program = data Program (Prg) #-}

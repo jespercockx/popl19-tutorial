@@ -8,7 +8,7 @@ open import TypeChecker     using (printError; checkProgram)
 
 import AST as A
 import Parser
--- import Interpreter
+open import Interpreter using (runProgram)
 
 -- -- Other modules, not used here.
 -- import Value
@@ -44,13 +44,11 @@ check prg = do
   open IOMonad
   open ErrorMonad   using (fail; ok)
 
-{-
 -- Interpret.
 
 run : Program → IO ⊤
-run prg' = runProgram prg'
-  where open Interpreter using (runProgram)
--}
+run prg' = putStrLn (printInt (runProgram prg'))
+
 
 -- Display usage information and exit.
 
@@ -65,7 +63,7 @@ usage = do
 runwhile : IO ⊤
 runwhile = do
   file ∷ [] ← getArgs where _ → usage
-  prg ← check =<< parse =<< readFiniteFile file
+  run =<< check =<< parse =<< readFiniteFile file
   -- putStrLn ∘ A.printProgram =<< parse =<< readFiniteFile file
   return _
   where open IOMonad

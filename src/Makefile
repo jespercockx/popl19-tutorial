@@ -22,6 +22,10 @@ runwhile : $(agdafiles) $(parser)
 test : runwhile
 	make -C ../test
 
+parser : $(parser)
+	./$(parser) ../test/fib.c
+
+
 ## Haskell parser
 ###########################################################################
 

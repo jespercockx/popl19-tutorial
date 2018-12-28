@@ -41,34 +41,37 @@ data Exp (Γ : Cxt) : Type → Set where
   eNot  : (e : Exp Γ bool)                        → Exp Γ bool
   eOp   : ∀{t t'} (op : Op t t') (e e' : Exp Γ t) → Exp Γ t'
 
--- Well-typed statements (might extend the context).
+
+-- Well-typed declarations (extend the context).
+
+data Decl (Γ : Cxt) (t : Type) : Set where
+    dInit : (e : Exp Γ t) → Decl Γ t
+
+data Decls (Γ : Cxt) : Cxt → Set where
+  []  : Decls Γ Γ
+  _∷_ : ∀{t Γ′} (s : Decl Γ t) (ss : Decls (t ∷ Γ) Γ′) → Decls Γ Γ′
+
+-- Well-typed statements.
 
 mutual
 
-  data Stm (Γ : Cxt) : CxtExt → Set where
-    sInit   : ∀{t}     (e : Exp Γ t)                                      → Stm Γ (just t)
-    sAss    : ∀{t}     (x : Var Γ t) (e : Exp Γ t)                        → Stm Γ nothing
-    sWhile  : ∀{Γ'}    (e : Exp Γ bool) (s  : Stms Γ Γ')                  → Stm Γ nothing
-    sIfElse : ∀{Γ₁ Γ₂} (e : Exp Γ bool) (s₁ : Stms Γ Γ₁) (s₂ : Stms Γ Γ₂) → Stm Γ nothing
+  data Stm (Γ : Cxt) : Set where
+    sAss    : ∀{t} (x : Var Γ t) (e : Exp Γ t)               → Stm Γ
+    sWhile  : ∀ (e : Exp Γ bool) (s  : Stms Γ)               → Stm Γ
+    sIfElse : ∀ (e : Exp Γ bool) (s₁ : Stms Γ) (s₂ : Stms Γ) → Stm Γ
 
-  data Stms (Γ : Cxt) : Cxt → Set where
-    []  : Stms Γ Γ
-    _∷_ : ∀{mt} (s : Stm Γ mt) {Γ′} (ss : Stms (Γ ▷ mt) Γ′) → Stms Γ Γ′
-
--- -- Stms can be concatenated.
-
--- _++ˢ_ : ∀{Γ Γ' Γ''} → Stms Γ Γ' → Stms Γ' Γ'' → Stms Γ Γ''
--- []       ++ˢ ss' = ss'
--- (s ∷ ss) ++ˢ ss' = s ∷ (ss ++ˢ ss')
+  Stms : Cxt → Set
+  Stms Γ = List (Stm Γ)
 
 -- A program is a list of statements and a final expression.
 
 record Program : Set where
   constructor program
   field
-    {Γ}     : Cxt
-    theStms : Stms [] Γ
-    theMain : Exp Γ int
+    {Γ}      : Cxt
+    theDecls : Decls [] Γ
+    theStms  : Stms Γ
+    theMain  : Exp Γ int
 open Program public
 
 -- Auxiliary functions:
