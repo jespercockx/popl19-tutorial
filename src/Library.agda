@@ -34,6 +34,8 @@ open import Level             public using (_⊔_)
 
 open import IO.Primitive      public using (IO)
 
+open import Monad             public
+
 open import Relation.Binary.PropositionalEquality public using (_≡_; _≢_; refl; cong; subst)
 open import Relation.Binary public using (Decidable; Rel)
 open import Relation.Nullary public using (¬_; Dec; yes; no)
@@ -227,8 +229,6 @@ module String where
   open import Data.String.Base public
   open import Data.String.Unsafe public using (_≟_)
 
--- Place overloaded monad operation in module
-
 module ErrorMonad {e} {E : Set e} where
 
   Error : ∀{a} (A : Set a) → Set (e ⊔ a)
@@ -237,28 +237,22 @@ module ErrorMonad {e} {E : Set e} where
   pattern fail err = inj₁ err
   pattern ok   val = inj₂ val
 
-  return : ∀{a}{A : Set a} → A → Error A
-  return = ok
+  instance
+    FunctorError : ∀ {a} → Functor (Error {a})
+    FunctorError .fmap f (fail err) = fail err
+    FunctorError .fmap f (ok   a  ) = ok (f a)
 
-  _>>=_ : ∀{a b} {A : Set a} {B : Set b} → Error A → (A → Error B) → Error B
-  fail err >>= k = fail err
-  ok   a   >>= k = k a
+    ApplicativeError : ∀ {a} → Applicative (Error {a})
+    ApplicativeError .pure               = ok
+    ApplicativeError ._<*>_ (fail err) x = fail err
+    ApplicativeError ._<*>_ (ok   f  ) x = f <$> x
 
-  _>>_ : ∀{b} {B : Set b} → Error ⊤ → Error B → Error B
-  m >> m' = m >>= λ _ → m'
+    MonadError : ∀ {a} → Monad (Error {a})
+    MonadError ._>>=_ (fail err) k = fail err
+    MonadError ._>>=_ (ok   a  ) k = k a
 
-  _<&>_ : ∀{a b} {A : Set a} {B : Set b} → Error A → (A → B) → Error B
-  fail e <&> f = fail e
-  ok   a <&> f = ok (f a)
-
-  _<$>_ : ∀{a b} {A : Set a} {B : Set b} → (A → B) → Error A → Error B
-  f <$> m = m <&> f
-
-  liftM2 : ∀ {a b c} {A : Set a} {B : Set b} {C : Set c}
-    (f : A → B → C) → Error A → Error B → Error C
-  liftM2 f m n = do
-    a ← m
-    f a <$> n
+  liftM2 : ∀ {ℓ} {A B C : Set ℓ} (f : A → B → C) → Error A → Error B → Error C
+  liftM2 f m n = f <$> m <*> n
 
   throwError : ∀{a} {A : Set a} → E → Error A
   throwError = fail
@@ -267,19 +261,22 @@ module ErrorMonad {e} {E : Set e} where
   catchError (fail e) h = h e
   catchError (ok a)   h = ok a
 
-
 module IOMonad where
-  open import IO.Primitive public using (return; _>>=_)
 
-  infixl 1 _>>_
+  open import IO.Primitive as IO using (IO) public
 
-  _>>_  : ∀ {b} {B : Set b} → IO ⊤ → IO B → IO B
-  _>>_ = λ m m' → m >>= λ _ → m'
+  instance
+    FunctorIO : ∀ {a} → Functor (IO {a})
+    FunctorIO .fmap f mx = mx IO.>>= λ x → IO.return (f x)
 
-  infixr 1 _=<<_
+    ApplicativeIO : ∀ {a} → Applicative (IO {a})
+    ApplicativeIO .pure        = IO.return
+    ApplicativeIO ._<*>_ mf mx = mf IO.>>= λ f → f <$> mx
 
-  _=<<_  : ∀ {a b} {A : Set a} {B : Set b} → (A → IO B) → IO A → IO B
-  k =<< m = m >>= k
+    MonadIO : ∀ {a} → Monad (IO {a})
+    MonadIO ._>>=_ = IO._>>=_
+
+open IOMonad public
 
 {-# FOREIGN GHC import qualified Data.Text #-}
 {-# FOREIGN GHC import qualified Data.Text.IO #-}
@@ -318,3 +315,5 @@ postulate
 printBool : Bool → String
 printBool true  = "true"
 printBool false = "false"
+
+-- -}

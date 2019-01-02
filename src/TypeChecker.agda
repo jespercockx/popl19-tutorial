@@ -73,7 +73,7 @@ printError = λ where
 
 -- Type error monad.
 
-open ErrorMonad {E = TypeError} using (Error; fail; ok)
+open ErrorMonad {E = TypeError}
 
 -- Checking expressions
 ---------------------------------------------------------------------------
@@ -85,7 +85,6 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
   -- We work in the error monad.
 
   M = Error
-  open ErrorMonad {E = TypeError} hiding (Error; fail; ok)
 
   -- Environment.
 
@@ -207,36 +206,32 @@ module CheckDeclarations where
 
   -- TCDecl is a monad.
 
-  -- Return.
+  private
 
-  return : ∀{Γ A} (a : A) → TCDecl Γ Γ A
-  return a .runTCDecl γ = ok (a , γ)
+    returnTCDecl : ∀ {Γ A} (a : A) → TCDecl Γ Γ A
+    returnTCDecl a .runTCDecl γ = ok (a , γ)
 
-  -- Bind.
+    bindTCDecl : ∀{Γ Γ′ Γ″ A B}
+      (m :     TCDecl Γ  Γ′ A)
+      (k : A → TCDecl Γ′ Γ″ B)
+             → TCDecl Γ  Γ″ B
 
-  _>>=_ : ∀{Γ Γ′ Γ″ A B}
-    (m :     TCDecl Γ  Γ′ A)
-    (k : A → TCDecl Γ′ Γ″ B)
-           → TCDecl Γ  Γ″ B
+    bindTCDecl m k .runTCDecl γ =
+      case m .runTCDecl γ of λ where
+        (fail err)    → fail err
+        (ok (a , γ')) → k a .runTCDecl γ'
 
-  (m >>= k) .runTCDecl γ =
-    case m .runTCDecl γ of λ where
-      (fail err)    → fail err
-      (ok (a , γ')) → k a .runTCDecl γ'
 
-  -- Sequence.
+  instance
+    FunctorTCDecl : ∀ {Γ Γ′} → Functor (TCDecl Γ Γ′)
+    FunctorTCDecl .fmap f m = bindTCDecl m (returnTCDecl ∘′ f)
 
-  _>>_  : ∀{Γ Γ′ Γ″ B}
-    (m  : TCDecl Γ  Γ′ ⊤)
-    (m' : TCDecl Γ′ Γ″ B)
-        → TCDecl Γ  Γ″ B
-  m >> m' = m >>= λ _ → m'
+    IApplicativeTCDecl : IApplicative TCDecl
+    IApplicativeTCDecl .pure        = returnTCDecl
+    IApplicativeTCDecl ._<*>_ mf mx = bindTCDecl mf (_<$> mx)
 
-  -- Map.
-
-  _<$>_ : ∀{Γ Γ' A B} (f : A → B) → TCDecl Γ Γ' A → TCDecl Γ Γ' B
-  f <$> m = m >>= (return ∘′ f)
-
+    IMonadTCDecl : IMonad TCDecl
+    IMonadTCDecl ._>>=_ = bindTCDecl
 
   -- -- Error raising.
 

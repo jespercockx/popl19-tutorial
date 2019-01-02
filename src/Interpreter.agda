@@ -4,7 +4,7 @@ open import Library
 open import WellTypedSyntax
 open import Value
 
-open import Delay public using (Delay; module DelayMonad; force; later'; runDelay)
+open import Delay using (Delay; force; later'; runDelay) public
 
 -- Evaluation of expressions.
 
@@ -43,33 +43,36 @@ module ExecStm {Γ : Cxt} where
 
     -- Monad.
 
-    return : ∀{i A} (a : A) → Exec i A
-    return a .runExec ρ = Delay.return (a , ρ)
+    private
+      returnExec : ∀{i A} (a : A) → Exec i A
+      returnExec a .runExec ρ = return (a , ρ)
 
-    _>>=_ : ∀{i A B} (m : Exec i A) (k : A → Exec i B) → Exec i B
-    (m >>= k) .runExec ρ = m .runExec ρ Delay.>>= λ where
-      (a , ρ') → k a .runExec ρ'
+      bindExec : ∀{i A B} (m : Exec i A) (k : A → Exec i B) → Exec i B
+      bindExec m k .runExec ρ = m .runExec ρ >>= λ where
+        (a , ρ') → k a .runExec ρ'
 
-    _=<<_ : ∀{i A B} (k : A → Exec i B) (m : Exec i A) → Exec i B
-    k =<< m = m >>= k
 
-    _>>_ : ∀{i B} (m : Exec i ⊤) (k : Exec i B) → Exec i B
-    m >> m' = m >>= λ _ → m'
+    instance
+      FunctorExec : ∀ {i} → Functor (Exec i)
+      FunctorExec .fmap f mx = bindExec mx (λ x → returnExec (f x))
 
-    -- Functoriality
+      ApplicativeExec : ∀ {i} → Applicative (Exec i)
+      ApplicativeExec .pure  = returnExec
+      ApplicativeExec ._<*>_ mf mx = bindExec mf (_<$> mx)
 
-    _<$>_ : ∀{i A B} (f : A → B) (m : Exec i A) → Exec i B
-    f <$> m = m >>= λ a → return (f a)
+      MonadExec : ∀ {i} → Monad (Exec i)
+      MonadExec ._>>=_ = bindExec
+
 
     -- Updating the environment.
 
     modify : ∀{i} (f : Env Γ → Env Γ) → Exec i ⊤
-    modify f .runExec ρ = Delay.return (_ , f ρ)
+    modify f .runExec ρ = return (_ , f ρ)
 
     -- Evaluate an expression.
 
     evalExp : ∀{i t} (e : Exp Γ t) → Exec i(Val t)
-    evalExp e .runExec ρ = Delay.return (M.eval e , ρ)
+    evalExp e .runExec ρ = return (M.eval e , ρ)
       where module M = EvalExp ρ
 
     mutual
@@ -108,7 +111,6 @@ evalPrg (program ds ss e) = do
   let ρ₀ = execDecls ds []
   (_ , ρ) ← ExecStm.execStms ss .ExecStm.runExec ρ₀
   return $ EvalExp.eval ρ e
-  where open DelayMonad
 
 runProgram : (prg : Program) → ℤ
 runProgram prg = runDelay (evalPrg prg)

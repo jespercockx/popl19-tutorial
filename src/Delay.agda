@@ -22,9 +22,6 @@ open Delay public
 
 -- Smart constructor.
 
-return : ∀{A i} → A → Delay i A
-return a .force = return' a
-
 later : ∀ {A i} → Delay i A → Delay (↑ i) A
 later x .force = later' x
 
@@ -35,24 +32,25 @@ never .force = later' never
 
 -- Monad instance.
 
-infixl 10 _>>=_
+private
+  returnDelay : ∀{A i} → A → Delay i A
+  returnDelay a .force = return' a
 
-_>>=_ : ∀ {i A B} → Delay i A → (A → Delay i B) → Delay i B
-(m >>= k) .force = case m .force of λ where
-  (return' a) → k a .force
-  (later' m') → later' (m' >>= k)
+  bindDelay : ∀ {i A B} → Delay i A → (A → Delay i B) → Delay i B
+  bindDelay m k .force = case m .force of λ where
+    (return' a) → k a .force
+    (later' m') → later' (bindDelay m' k)
 
-delayMonad : ∀ {i} → RawMonad (Delay i)
-delayMonad {i} = record
-  { return = return
-  ; _>>=_  = _>>=_ {i}
-  }
+instance
+  FunctorDelay : ∀ {i} → Functor (Delay i)
+  FunctorDelay .fmap f mx = bindDelay mx (λ x → returnDelay (f x))
 
--- Functor and applicative.
+  ApplicativeDelay : ∀ {i} → Applicative (Delay i)
+  ApplicativeDelay .pure  = returnDelay
+  ApplicativeDelay ._<*>_ mf mx = bindDelay mf (_<$> mx)
 
-module _ {i : Size} where
-  open module DelayMonad = RawMonad (delayMonad {i = i})
-                           public using (_<$>_) renaming (_⊛_ to _<*>_)
+  MonadDelay : ∀ {i} → Monad (Delay i)
+  MonadDelay ._>>=_ = bindDelay
 
 {-# NON_TERMINATING #-}
 
