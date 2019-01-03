@@ -1,4 +1,6 @@
 
+module Library.Eq where
+
 open import Agda.Builtin.Bool
 
 open import Relation.Binary using (Decidable)

@@ -29,14 +29,13 @@ open import Data.String.Base  public using (String)
 open import Data.Sum.Base     public using (_⊎_; inj₁; inj₂)
 open import Data.Unit.Base    public using (⊤)
 
-open import Eq                public
-
 open import Function          public using (id; _∘_; _∘′_; _$_; case_of_)
 open import Level             public using (_⊔_)
 
-open import IO.Primitive      public using (IO)
+open import Library.Eq        public
+open import Library.Monad     public
 
-open import Monad             public
+open import IO.Primitive      public using (IO)
 
 open import Relation.Binary.PropositionalEquality public using (_≡_; _≢_; refl; cong; cong₂; subst)
 open import Relation.Binary public using (Decidable; Rel)

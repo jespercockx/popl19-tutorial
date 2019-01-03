@@ -1,3 +1,6 @@
+
+module Library.Monad where
+
 open import Agda.Primitive
 
 open import Agda.Builtin.Unit
