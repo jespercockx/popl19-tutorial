@@ -49,17 +49,17 @@ module EvalExp (ρ : Env) where
   eval (eNot e) = case (eval e) of λ where
     (just (boolV b)) → just (boolV (bNot b))
     _ → nothing
-  eval (ePlus e₁ e₂) = case (eval e₁ ,′ eval e₂) of λ where
+  eval (ePlus e₁ e₂) = case (eval e₁ , eval e₂) of λ where
     (just (intV i) , just (intV j)) → just (intV (i + j))
     _ → nothing
-  eval (eMinus e₁ e₂) = case (eval e₁ ,′ eval e₂) of λ where
+  eval (eMinus e₁ e₂) = case (eval e₁ , eval e₂) of λ where
     (just (intV i) , just (intV j)) → just (intV (i - j))
     _ → nothing
-  eval (eGt e₁ e₂) = case (eval e₁ ,′ eval e₂) of λ where
+  eval (eGt e₁ e₂) = case (eval e₁ , eval e₂) of λ where
     (just (intV i) , just (intV j)) → just (boolV (iGt i j))
     _ → nothing
-  eval (eAnd e₁ e₂) = case (eval e₁ ,′ eval e₂) of λ where
-    (just (boolV b₁) , just (boolV b₂)) → just (boolV (bAnd b₁ b₂ ))
+  eval (eAnd e₁ e₂) = case (eval e₁ , eval e₂) of λ where
+    (just (boolV b₁) , just (boolV b₂)) → just (boolV (bAnd b₁ b₂))
     _ → nothing
 
 open EvalExp
