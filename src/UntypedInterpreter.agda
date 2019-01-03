@@ -9,9 +9,11 @@ data Val : Set where
   intV  : ℤ       → Val
   boolV : Boolean → Val
 
-printVal : Val → String
-printVal (intV i)  = printInt i
-printVal (boolV b) = printBoolean b
+instance
+  PrintVal : Print Val
+  PrintVal .print = λ where
+    (intV i)  → printInt i
+    (boolV b) → printBoolean b
 
 Env : Set
 Env = List (Id × Val)

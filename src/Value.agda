@@ -11,9 +11,10 @@ Val : Type → Set
 Val int    = ℤ
 Val bool   = Boolean
 
-printVal : ∀ t → Val t → String
-printVal int    i = printInt     i
-printVal bool   b = printBoolean b
+instance
+  PrintVal : ∀ {t} → Print (Val t)
+  PrintVal {int}  .print i = print {{PrintInt}} i
+  PrintVal {bool} .print b = print {{PrintBoolean}} b
 
 Env : Cxt → Set
 Env = List.All Val

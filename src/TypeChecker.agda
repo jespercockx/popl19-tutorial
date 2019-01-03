@@ -62,13 +62,14 @@ data TypeError : Set where
   shadowingDeclaration   : Name → TypeError
   typeMismatch           : (tinf texp : Type)  → tinf ≢ texp → TypeError
 
-printError : TypeError → String
-printError = λ where
-  (unboundVariable x)        → "unbound variable " String.++ x
-  (shadowingDeclaration x)   → "illegal shadowing by "  String.++ x
-  (typeMismatch tinf texp _) → String.concat $
-    "type mismatch: expected " ∷ A.printType texp ∷
-    ", but inferred " ∷ A.printType tinf ∷ []
+instance
+  PrintError : Print TypeError
+  PrintError .print = λ where
+    (unboundVariable x)        → "unbound variable " String.++ x
+    (shadowingDeclaration x)   → "illegal shadowing by "  String.++ x
+    (typeMismatch tinf texp _) → String.concat $
+      "type mismatch: expected " ∷ print texp ∷
+      ", but inferred " ∷ print tinf ∷ []
 
 -- Type error monad.
 

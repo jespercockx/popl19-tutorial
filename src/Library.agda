@@ -35,6 +35,7 @@ open import Level             public using (_⊔_)
 
 open import Library.Eq        public
 open import Library.Monad     public
+open import Library.Print     public
 
 open import IO.Primitive      public using (IO)
 
@@ -337,15 +338,27 @@ postulate
 
 -- Showing builtin types
 
-postulate
-  printInt : ℤ → String
-  printDouble : Float → String
+private
+  postulate
+    printInt : ℤ → String
+    printDouble : Float → String
 
 {-# COMPILE GHC printInt    = \ i -> Data.Text.pack (show (i :: Integer)) #-}
 {-# COMPILE GHC printDouble = \ d -> Data.Text.pack (show (d :: Double )) #-}
 
-printBool : Bool → String
-printBool true  = "true"
-printBool false = "false"
+private
+  printBool : Bool → String
+  printBool true  = "true"
+  printBool false = "false"
+
+instance
+  PrintInt : Print ℤ
+  PrintInt .print = printInt
+
+  PrintDouble : Print Float
+  PrintDouble .print = printDouble
+
+  PrintBool : Print Bool
+  PrintBool .print = printBool
 
 -- -}
