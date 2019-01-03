@@ -94,3 +94,18 @@ postulate
 {-# COMPILE GHC printExp     = \ e -> Data.Text.pack (printTree (e :: Exp))     #-}
 {-# COMPILE GHC printStm     = \ s -> Data.Text.pack (printTree (s :: Stm))     #-}
 {-# COMPILE GHC printProgram = \ p -> Data.Text.pack (printTree (p :: Program)) #-}
+
+-- Eq instances
+
+instance
+  EqId : Eq Id
+  EqId ._≟_ (mkId x) (mkId y) = case x ≟ y of λ where
+    (yes p) → yes (cong mkId p)
+    (no ¬p) → no (λ { refl → ¬p refl })
+
+  EqType : Eq Type
+  EqType ._≟_ = λ where
+    bool bool → yes refl
+    bool int  → no λ ()
+    int  bool → no λ ()
+    int  int  → yes refl
