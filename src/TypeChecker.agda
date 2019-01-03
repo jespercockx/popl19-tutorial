@@ -3,9 +3,8 @@
 module TypeChecker where
 
 open import Library
-open String using (_≟_)
 open AssocList
-open AssocList.DecidableRange _≟_
+open AssocList.DecidableRange
 
 import AST as A
 open import WellTypedSyntax
@@ -123,7 +122,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
     checkExp : (e : A.Exp) (t : Type) → M (Exp Γ t)
     checkExp e t = do
       (t' , e') ← inferExp e
-      case t' TypeEq.≟ t of λ where
+      case t' ≟ t of λ where
         (yes refl) → return e'
         (no  t'≢t) → throwError (typeMismatch t' t t'≢t)
 

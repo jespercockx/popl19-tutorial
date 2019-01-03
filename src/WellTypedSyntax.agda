@@ -82,13 +82,13 @@ arithType? : ∀ t → Dec (t ≡ int)
 arithType? int    = yes refl
 arithType? bool   = no λ()
 
-module TypeEq where
-
-  _≟_ : (t t' : Type) → Dec (t ≡ t')
-  bool   ≟ bool   = yes refl
-  bool   ≟ int    = no λ()
-  int    ≟ bool   = no λ()
-  int    ≟ int    = yes refl
+instance
+  EqType : Eq Type
+  EqType ._≟_ = λ where
+    bool bool → yes refl
+    bool int  → no λ()
+    int  bool → no λ()
+    int  int  → yes refl
 
 
 -- -}

@@ -23,11 +23,13 @@ open import Data.List.All public using ([]; _∷_)
 open import Data.List.Any public using (here; there)
 open import Data.List.NonEmpty public using (List⁺; _∷_; _∷⁺_) hiding (module List⁺)
 open import Data.Maybe.Base   public using (Maybe; nothing; just)
-open import Data.Product      public using (∃; ∃₂; _×_; _,_; proj₁; proj₂; map₂)
+open import Data.Product      public using (∃; ∃₂; _×_; _,_; _,′_; proj₁; proj₂; map₂)
   renaming (map to ∃-map)
 open import Data.String.Base  public using (String)
 open import Data.Sum.Base     public using (_⊎_; inj₁; inj₂)
 open import Data.Unit.Base    public using (⊤)
+
+open import Eq                public
 
 open import Function          public using (id; _∘_; _∘′_; _$_; case_of_)
 open import Level             public using (_⊔_)
@@ -36,7 +38,7 @@ open import IO.Primitive      public using (IO)
 
 open import Monad             public
 
-open import Relation.Binary.PropositionalEquality public using (_≡_; _≢_; refl; cong; subst)
+open import Relation.Binary.PropositionalEquality public using (_≡_; _≢_; refl; cong; cong₂; subst)
 open import Relation.Binary public using (Decidable; Rel)
 open import Relation.Nullary public using (¬_; Dec; yes; no)
 open import Relation.Nullary.Decidable public using (⌊_⌋)
@@ -48,16 +50,18 @@ open import Size public
 -- module ∃ = Data.Product -- bad idea, Agda's printer cannot deal with it
 
 module Bool where
-  open import Data.Bool.Base public using (_≟_)
+  import Data.Bool.Base
 
-  _==_ : (b b' : Bool) → Bool
-  b == b' = ⌊ b ≟ b' ⌋
+  instance
+    EqBool : Eq Bool
+    EqBool ._≟_ = Data.Bool.Base._≟_
 
 module Integer where
-  open import Data.Integer public
+  open import Data.Integer public hiding (_≟_)
 
-  _==_ : (i j : ℤ) → Bool
-  i == j = ⌊ i ≟ j ⌋
+  instance
+    Eqℤ : Eq ℤ
+    Eqℤ ._≟_ = Data.Integer._≟_
 
   _<=_ : (i j : ℤ) → Bool
   i <= j = ⌊ i ≤? j ⌋
@@ -65,9 +69,33 @@ module Integer where
   postulate div : (i j : ℤ) → ℤ
   {-# COMPILE GHC div = div #-}
 
+module Character where
+  open import Data.Char public
+  open import Agda.Builtin.Char using (primCharEquality)
+  open import Agda.Builtin.TrustMe
+
+  instance
+    EqChar : Eq Char
+    EqChar ._≟_ x y =
+        if primCharEquality x y
+        then yes primTrustMe
+        else no whatever
+      where postulate whatever : _
+
 module List where
   open import Data.List.Base public using (map; foldl)
   open import Data.List.All public using (All; []; _∷_) hiding (module All)
+
+  instance
+    EqList : ∀ {ℓ} {A : Set ℓ} {{_ : Eq A}} → Eq (List A)
+    EqList ._≟_ = λ where
+      []       []       → yes refl
+      []       (y ∷ ys) → no λ ()
+      (x ∷ xs) []       → no λ ()
+      (x ∷ xs) (y ∷ ys) → case (x ≟ y ,′ xs ≟ ys) of λ where
+        (yes p , yes q) → yes (cong₂ _∷_ p q)
+        (_     , no ¬q) → no (λ { refl → ¬q refl })
+        (no ¬p , _    ) → no (λ { refl → ¬p refl })
 
   module All where
     open import Data.List.All public using (lookup; map; tail)
@@ -187,7 +215,7 @@ module AssocList where
     head-not-unique y↦v∈vs us = case us here (there y↦v∈vs) of λ where
       (refl , ())
 
-  module DecidableRange {b} {B : Set b} (_≟_ : Decidable (_≡_ {A = B})) where
+  module DecidableRange {b} {B : Set b} {{_ : Eq B}} where
 
     module _ {a} {A : Set a} where
 
@@ -227,7 +255,11 @@ module List⁺ where
 
 module String where
   open import Data.String.Base public
-  open import Data.String.Unsafe public using (_≟_)
+  import Data.String.Unsafe
+
+  instance
+    EqString : Eq String
+    EqString ._≟_ = Data.String.Unsafe._≟_
 
 module ErrorMonad {e} {E : Set e} where
 
