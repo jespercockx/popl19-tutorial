@@ -12,8 +12,8 @@ data Val : Set where
 instance
   PrintVal : Print Val
   PrintVal .print = λ where
-    (intV i)  → printInt i
-    (boolV b) → printBoolean b
+    (intV i)  → print i
+    (boolV b) → print b
 
 Env : Set
 Env = List (Id × Val)
