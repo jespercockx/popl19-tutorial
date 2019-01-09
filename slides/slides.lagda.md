@@ -18,8 +18,8 @@ open import Data.Nat
 
 ```agda
 f : ℕ → ℕ
-f zero = 42
-f (suc x) = x
+f zero     =  42
+f (suc x)  =  x
 ```
 
 # Simple data types and pattern matching
