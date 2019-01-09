@@ -3,7 +3,7 @@ Agda tutorial at POPL 2019
 
 Running example:
 
-* type-checker and interpreter for simple typed language
+* type-checker and interpreter for simply typed language
 * FFI binding to parser
 
 Language: WHILE-language
@@ -75,14 +75,14 @@ verification is not done by a separate tool but built into the
 language itself.
 
 Agda allows two approaches to implement verified programs:
-- Extrinsic approach: first write the program as you would in Haskell
+- Extrinsic approach: first write the *program* as you would in, say, Haskell
   and then give a separate proof of correctness
 - Intrinsic approach: first define a specific *type* that only allows
 programs that satisfy the correctness properties and then write the
-program that inhabits this type The intrinsic approach is also called
+program that inhabits this type. The intrinsic approach is also called
 **correct-by-construction** programming.
 
-Example: division on natural numbers Nat:
+Example: division on natural numbers `Nat`:
 - Extrinsic approach: first implement functions `_/_ : Nat → Nat →
   Nat` and `_%_ : Nat → Nat → Nat` and then give separate proofs that
   `x ≡ y * (x / y) + x % y` and `x % y < y`.
@@ -94,7 +94,7 @@ Example: division on natural numbers Nat:
 
 In this tutorial, we apply correct-by-construction programming to the
 construction of a typechecker and interpreter for a simple C-like
-language (see src/While.cf for the syntax).
+language called WHILE (see src/While.cf for the syntax).
 
 3. Simple data types and pattern matching
 -----------------------------------------
@@ -115,7 +115,7 @@ language (see src/While.cf for the syntax).
 
 Note on termination checking: all functions in Agda are checked to be
 terminating. Since it is possible to write non-terminating programs in
-our While language, the evaluator takes an extra argument called the
+our WHILE language, the evaluator takes an extra argument called the
 'fuel' (a natural number), which represents the number of steps before
 the evaluator gives up. Later we will see a better approach to deal
 with non-termination in Agda, the Delay monad.
@@ -123,7 +123,7 @@ with non-termination in Agda, the Delay monad.
 **Exercise**: add the following language constructions: boolean
   conjunction ('and'), integer subtraction ('minus'), conditionals
   ('if/then/else'). (TODO: remove these from the provided code)
-  Also update the functions in 
+  Also update the functions in
 
 4. BNFC and the Haskell FFI
 ----------------------------------------
@@ -225,7 +225,7 @@ values, such as Streams.
 A simple general-purpose coinductive type is
 the Delay type: a value of type Delay A is either a value of type A
 which is produced now, or a value of type Delay A which is produced
-later, possibly at nauseam (see Delay.agda). 
+later, possibly at nauseam (see Delay.agda).
 
 **Example code**: see Delay.agda, Interpreter.agda
 
