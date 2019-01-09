@@ -1,5 +1,7 @@
 -- Type checker for the WHILE language.
 
+{-# OPTIONS --postfix-projections #-}
+
 module TypeChecker where
 
 open import Library
@@ -175,12 +177,6 @@ record TCExp Γ (A : Set) : Set where
     runTCExp : TCCxt Γ → Error A
 open TCExp
 
-lookupVar : ∀{Γ} (x : Name) → TCExp Γ (∃ λ t → Var Γ t)
-lookupVar x .runTCExp γ = CheckExpressions.lookupVar γ x
-
--- inferExp : ∀{Γ} (e : A.Exp) → TCExp Γ (∃ λ (t : Type) → Exp Γ t)
--- inferExp e .runTCExp γ = CheckExpressions.inferExp γ e
-
 checkExp : ∀{Γ} (e : A.Exp) (t : Type) → TCExp Γ (Exp Γ t)
 checkExp e t .runTCExp γ = CheckExpressions.checkExp γ e t
 
@@ -232,11 +228,12 @@ module CheckDeclarations where
 
     IMonadTCDecl : IMonad TCDecl
     IMonadTCDecl ._>>=_ = bindTCDecl
+    IMonadTCDecl .super = IApplicativeTCDecl
 
-  -- -- Error raising.
+  -- Get the current environment.
 
-  -- throwError : ∀{Γ Γ' A} → TypeError → TCDecl Γ Γ' A
-  -- throwError err .runTCDecl γ = fail err
+  get : ∀{Γ} → TCDecl Γ Γ (TCCxt Γ)
+  get .runTCDecl γ = ok (γ , γ)
 
   -- Lifting a TCExp computation into TCDecl.
 
@@ -257,13 +254,10 @@ module CheckDeclarations where
 
   -- Checking expressions.
 
-  -- Predicting the next shape of the top block.
-
-  cext : (s : A.Decl) → Type
-  cext (A.dInit t x e)     = t
+  -- Predicting the next shape of the context.
 
   Next : (Γ : Cxt) (s : A.Decl) → Cxt
-  Next Γ s = cext s ∷ Γ
+  Next Γ s = A.declType s ∷ Γ
 
   Nexts : (Γ : Cxt) (ss : List A.Decl) → Cxt
   Nexts = List.foldl Next
@@ -272,7 +266,7 @@ module CheckDeclarations where
 
     -- Checking a single declaration.
 
-    checkDecl : ∀ {Γ} (d : A.Decl) (let t = cext d) → TCDecl Γ (t ∷ Γ) (Decl Γ t)
+    checkDecl : ∀ {Γ} (d : A.Decl) (let t = A.declType d) → TCDecl Γ (t ∷ Γ) (Decl Γ t)
 
     checkDecl (A.dInit t x e) = do
       e' ← lift $ checkExp e t
@@ -282,6 +276,7 @@ module CheckDeclarations where
     -- Checking a list of declarations.
 
     checkDecls : ∀ {Γ} (ds : List A.Decl) (let Γ' = Nexts Γ ds) → TCDecl Γ Γ' (Decls Γ Γ')
+
     checkDecls []       = return []
     checkDecls (d ∷ ds) = do
       d' ← checkDecl d

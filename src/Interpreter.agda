@@ -6,7 +6,7 @@ open import Value
 
 open import Delay using (Delay; force; later'; runDelay) public
 
--- Evaluation of expressions.
+-- Evaluation of expressions in fixed environment ρ.
 
 module EvalExp {Γ} (ρ : Env Γ) where
 
@@ -23,6 +23,8 @@ module EvalExp {Γ} (ρ : Env Γ) where
 
 open EvalExp
 
+-- Execution of declarations, extending the environment.
+
 execDecl : ∀{Γ t} (d : Decl Γ t) (ρ : Env Γ) → Env (t ∷ Γ)
 execDecl (dInit e) ρ = eval ρ e ∷ ρ
 
@@ -32,7 +34,8 @@ execDecls (d ∷ ds) ρ = execDecls ds (execDecl d ρ)
 
 -- Execution of statements.
 
--- We use the delay monad for non-termination.
+-- We use the delay monad for non-termination
+-- and the state monad for environment update.
 
 module ExecStm {Γ : Cxt} where
 
@@ -51,7 +54,6 @@ module ExecStm {Γ : Cxt} where
       bindExec m k .runExec ρ = m .runExec ρ >>= λ where
         (a , ρ') → k a .runExec ρ'
 
-
     instance
       FunctorExec : ∀ {i} → Functor (Exec i)
       FunctorExec .fmap f mx = bindExec mx (λ x → returnExec (f x))
@@ -62,7 +64,6 @@ module ExecStm {Γ : Cxt} where
 
       MonadExec : ∀ {i} → Monad (Exec i)
       MonadExec ._>>=_ = bindExec
-
 
     -- Updating the environment.
 
@@ -106,13 +107,23 @@ module ExecStm {Γ : Cxt} where
         execStm  s
         execStms ss
 
-evalPrg : ∀{i} (prg : Program) → Delay i ℤ
-evalPrg (program ds ss e) = do
+-- Execution of the program (main loop).
+
+execPrg : ∀{i} (prg : Program) → Delay i ℤ
+execPrg (program ds ss e) = do
+
+  -- Execute the declarations to get the initial environment ρ₀.
   let ρ₀ = execDecls ds []
+
+  -- Execute the statements (may not terminate).
   (_ , ρ) ← ExecStm.execStms ss .ExecStm.runExec ρ₀
+
+  -- Evaluate the main expression to yield result.
   return $ EvalExp.eval ρ e
 
+-- The result of a program is an integer.
+
 runProgram : (prg : Program) → ℤ
-runProgram prg = runDelay (evalPrg prg)
+runProgram prg = runDelay (execPrg prg)
 
 -- -}
