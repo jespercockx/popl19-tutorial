@@ -12,14 +12,6 @@ Cxt = List Type
 Var : (Γ : Cxt) (t : Type) → Set
 Var Γ t = t ∈ Γ
 
--- Context extensions.
-
-CxtExt = Maybe Type
-
-_▷_ : Cxt → CxtExt → Cxt
-Δ ▷ nothing = Δ
-Δ ▷ just t  = t ∷ Δ
-
 -- Arithmetical operators.
 
 data ArithOp : Set where
@@ -74,14 +66,8 @@ record Program : Set where
     theDecls : Decls [] Γ
     theStms  : Stms Γ
     theMain  : Exp Γ int
+
 open Program public
 
--- Auxiliary functions:
-
--- Testing types.
-
-arithType? : ∀ t → Dec (t ≡ int)
-arithType? int    = yes refl
-arithType? bool   = no λ()
 
 -- -}
