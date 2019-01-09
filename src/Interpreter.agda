@@ -1,3 +1,8 @@
+-- Interpreter for WHILE language.
+
+-- As computation is not guaranteed to terminate,
+-- execution of statements is placed in the Delay monad.
+
 module Interpreter where
 
 open import Library
@@ -39,73 +44,73 @@ execDecls (d ∷ ds) ρ = execDecls ds (execDecl d ρ)
 
 module ExecStm {Γ : Cxt} where
 
-    record Exec (i : Size) (A : Set) : Set where
-      field
-        runExec : (ρ : Env Γ) → Delay i (A × Env Γ)
-    open Exec public
+  record Exec (i : Size) (A : Set) : Set where
+    field
+      runExec : (ρ : Env Γ) → Delay i (A × Env Γ)
+  open Exec public
 
-    -- Monad.
+  -- Monad.
 
-    private
-      returnExec : ∀{i A} (a : A) → Exec i A
-      returnExec a .runExec ρ = return (a , ρ)
+  private
+    returnExec : ∀{i A} (a : A) → Exec i A
+    returnExec a .runExec ρ = return (a , ρ)
 
-      bindExec : ∀{i A B} (m : Exec i A) (k : A → Exec i B) → Exec i B
-      bindExec m k .runExec ρ = m .runExec ρ >>= λ where
-        (a , ρ') → k a .runExec ρ'
+    bindExec : ∀{i A B} (m : Exec i A) (k : A → Exec i B) → Exec i B
+    bindExec m k .runExec ρ = m .runExec ρ >>= λ where
+      (a , ρ') → k a .runExec ρ'
 
-    instance
-      FunctorExec : ∀ {i} → Functor (Exec i)
-      FunctorExec .fmap f mx = bindExec mx (λ x → returnExec (f x))
+  instance
+    FunctorExec : ∀ {i} → Functor (Exec i)
+    FunctorExec .fmap f mx = bindExec mx (λ x → returnExec (f x))
 
-      ApplicativeExec : ∀ {i} → Applicative (Exec i)
-      ApplicativeExec .pure  = returnExec
-      ApplicativeExec ._<*>_ mf mx = bindExec mf (_<$> mx)
+    ApplicativeExec : ∀ {i} → Applicative (Exec i)
+    ApplicativeExec .pure  = returnExec
+    ApplicativeExec ._<*>_ mf mx = bindExec mf (_<$> mx)
 
-      MonadExec : ∀ {i} → Monad (Exec i)
-      MonadExec ._>>=_ = bindExec
+    MonadExec : ∀ {i} → Monad (Exec i)
+    MonadExec ._>>=_ = bindExec
 
-    -- Updating the environment.
+  -- Updating the environment.
 
-    modify : ∀{i} (f : Env Γ → Env Γ) → Exec i ⊤
-    modify f .runExec ρ = return (_ , f ρ)
+  modify : ∀{i} (f : Env Γ → Env Γ) → Exec i ⊤
+  modify f .runExec ρ = return (_ , f ρ)
 
-    -- Evaluate an expression.
+  -- Evaluate an expression.
 
-    evalExp : ∀{i t} (e : Exp Γ t) → Exec i(Val t)
-    evalExp e .runExec ρ = return (M.eval e , ρ)
-      where module M = EvalExp ρ
+  evalExp : ∀{i t} (e : Exp Γ t) → Exec i(Val t)
+  evalExp e .runExec ρ = return (M.eval e , ρ)
+    where module M = EvalExp ρ
 
-    mutual
+  mutual
 
-      -- Executing a single statement.
+    -- Executing a single statement.
 
-      execStm : ∀{i} (s : Stm Γ) → Exec i ⊤
+    execStm : ∀{i} (s : Stm Γ) → Exec i ⊤
 
-      execStm (sAss x e) = do
-        v ← evalExp e
-        modify $ List.All.updateWith x (λ _ → v)
+    execStm (sAss x e) = do
+      v ← evalExp e
+      modify $ List.All.updateWith x (λ _ → v)
 
-      execStm (sWhile e ss) = do
-        true ← evalExp e where
-          false → return _
-        execStms ss
-        -- The recursive call needs to be guarded:
-        λ{ .runExec γ .force → later' $ execStm (sWhile e ss) .runExec γ }
+    execStm (sIfElse e ss ss') = do
+      b ← evalExp e
+      case b of λ where
+        true  → execStms ss
+        false → execStms ss'
 
-      execStm (sIfElse e ss ss') = do
-        b ← evalExp e
-        case b of λ where
-          true  → execStms ss
-          false → execStms ss'
+    execStm (sWhile e ss) = do
+      true ← evalExp e where
+        false → return _
+      execStms ss
+      -- The recursive call needs to be guarded:
+      λ{ .runExec γ .force → later' $ execStm (sWhile e ss) .runExec γ }
 
-      -- Executing a list of statments.
+    -- Executing a list of statments.
 
-      execStms : ∀{i} (ss : Stms Γ) → Exec i ⊤
-      execStms []       = return _
-      execStms (s ∷ ss) = do
-        execStm  s
-        execStms ss
+    execStms : ∀{i} (ss : Stms Γ) → Exec i ⊤
+    execStms []       = return _
+    execStms (s ∷ ss) = do
+      execStm  s
+      execStms ss
 
 -- Execution of the program (main loop).
 

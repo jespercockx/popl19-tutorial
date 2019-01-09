@@ -1,3 +1,5 @@
+-- The delay monad for potentially non-terminating computation.
+
 module Delay where
 
 open import Library
@@ -51,6 +53,8 @@ instance
 
   MonadDelay : ∀ {i} → Monad (Delay i)
   MonadDelay ._>>=_ = bindDelay
+
+-- Unwinding the delay monad might not terminate.
 
 {-# NON_TERMINATING #-}
 

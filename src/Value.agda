@@ -1,4 +1,4 @@
--- Common definitions for operational semantics and interpreter.
+-- Values and primitive operations; environments.
 
 module Value where
 
@@ -16,19 +16,27 @@ instance
   PrintVal {int}  .print i = print {{PrintInt}} i
   PrintVal {bool} .print b = print {{PrintBoolean}} b
 
+-- Well-typed Environments.
+
 Env : Cxt → Set
 Env = List.All Val
 
 -- Semantics of operations.
 
+-- Boolean negation.
+
 bNot : Boolean → Boolean
 bNot true = false
 bNot false = true
+
+-- Greater-than on integers.
 
 iGt : (i j : ℤ) → Boolean
 iGt i j = case i Integer.<= j of λ where
   false → true
   true  → false
+
+-- Integer arithmetic.
 
 iArith : (op : ArithOp) (i j : ℤ) → ℤ
 iArith plus  i j = i Integer.+ j

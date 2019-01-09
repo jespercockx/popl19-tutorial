@@ -1,4 +1,4 @@
--- Intrinsically well-typed While syntax.
+-- Intrinsically well-typed WHILE syntax.
 
 module WellTypedSyntax where
 
@@ -27,7 +27,7 @@ data ArithOp : Set where
 
 -- Binary Operators.
 
-data Op : (t t' : Type) → Set where
+data Op : (dom codom : Type) → Set where
   arith : (op : ArithOp) → Op int int
   gt    : Op int bool
   and   : Op bool bool
@@ -35,17 +35,19 @@ data Op : (t t' : Type) → Set where
 -- Well-typed expressions: context is fixed.
 
 data Exp (Γ : Cxt) : Type → Set where
+  -- Literals:
   eInt  : (i : ℤ)                                 → Exp Γ int
   eBool : (b : Boolean)                           → Exp Γ bool
-  eVar  : ∀{t}    (x : Var Γ t)                   → Exp Γ t
+  -- Operators:
   eNot  : (e : Exp Γ bool)                        → Exp Γ bool
   eOp   : ∀{t t'} (op : Op t t') (e e' : Exp Γ t) → Exp Γ t'
+  -- Variables:
+  eVar  : ∀{t}    (x : Var Γ t)                   → Exp Γ t
 
-
--- Well-typed declarations (extend the context).
+-- Well-typed declarations (extending the context).
 
 data Decl (Γ : Cxt) (t : Type) : Set where
-    dInit : (e : Exp Γ t) → Decl Γ t
+  dInit : (e : Exp Γ t) → Decl Γ t
 
 data Decls (Γ : Cxt) : Cxt → Set where
   []  : Decls Γ Γ

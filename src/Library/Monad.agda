@@ -1,9 +1,11 @@
+-- Monads and (applicative) functors.
 
 module Library.Monad where
 
 open import Agda.Primitive
-
 open import Agda.Builtin.Unit
+
+-- Functor type class.
 
 record Functor {a b} (F : Set a → Set b) : Set (lsuc a ⊔ b) where
   infixl 4 _<$>_
@@ -12,6 +14,8 @@ record Functor {a b} (F : Set a → Set b) : Set (lsuc a ⊔ b) where
   _<$>_ = fmap
 
 open Functor {{...}} public
+
+-- Indexed applicative functors.
 
 record IApplicative {i a b} {I : Set i} (F : I → I → Set a → Set b) : Set (i ⊔ lsuc a ⊔ b) where
   infixl 4 _<*>_
@@ -22,8 +26,12 @@ record IApplicative {i a b} {I : Set i} (F : I → I → Set a → Set b) : Set 
 
 open IApplicative {{...}} public
 
+-- Applicative functors (IApplicative with trivial index type).
+
 Applicative : ∀ {a b} (M : Set a → Set b) → Set (lsuc a ⊔ b)
 Applicative F = IApplicative {I = ⊤} (λ _ _ → F)
+
+-- Indexed monads.
 
 record IMonad {i a b} {I : Set i} (M : I → I → Set a → Set b) : Set (i ⊔ lsuc a ⊔ b) where
   infixl 1 _>>=_ _>>_
@@ -42,6 +50,8 @@ record IMonad {i a b} {I : Set i} (M : I → I → Set a → Set b) : Set (i ⊔
   f =<< m = m >>= f
 
 open IMonad {{...}} public
+
+-- Monads (IMonad with trivial index type).
 
 Monad : ∀ {a b} (M : Set a → Set b) → Set (lsuc a ⊔ b)
 Monad M = IMonad {I = ⊤} (λ _ _ → M)

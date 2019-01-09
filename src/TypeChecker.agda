@@ -196,8 +196,6 @@ record TCDecl Γ Γ' (A : Set) : Set where
     runTCDecl : TCCxt Γ → Error (A × TCCxt Γ')
 open TCDecl
 
--- Signature and return type stay fixed during checking of expressions.
-
 module CheckDeclarations where
 
   -- TCDecl is a monad.
@@ -251,8 +249,6 @@ module CheckDeclarations where
     case t ↦ x ∷ᵘ? uniq γ of λ where
       (yes us) → ok (_ , record { uniq = us })
       (no _)  → fail (shadowingDeclaration x)
-
-  -- Checking expressions.
 
   -- Predicting the next shape of the context.
 

@@ -10,9 +10,8 @@ import AST as A
 import Parser
 open import Interpreter using (runProgram)
 
--- -- Other modules, not used here.
--- import Value
--- import Evaluation
+-- Other modules, not used here.
+import Value
 
 -- Parse.
 
@@ -49,7 +48,6 @@ check prg = do
 run : Program → IO ⊤
 run prg' = putStrLn (print (runProgram prg'))
 
-
 -- Display usage information and exit.
 
 usage : IO ⊤
@@ -64,7 +62,6 @@ runwhile : IO ⊤
 runwhile = do
   file ∷ [] ← getArgs where _ → usage
   run =<< check =<< parse =<< readFiniteFile file
-  -- putStrLn ∘ print =<< parse =<< readFiniteFile file
   return _
   where open IOMonad
 

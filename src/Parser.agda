@@ -1,3 +1,5 @@
+-- FFI binding to the Haskell parser for the WHILE language.
+
 module Parser where
 
 open import Library
