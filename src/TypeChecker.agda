@@ -131,7 +131,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
     -- Operators.
 
-    inferOp : ∀{t t'} (op : Op t t') (e₁ e₂ : A.Exp) → M (∃ (Exp Γ))
+    inferOp : ∀{t t'} (op : Op t t') (e₁ e₂ : A.Exp) → M (∃ λ t → Exp Γ t)
     inferOp {t} {t'} op e₁ e₂ = do
       e₁' ← checkExp e₁ t
       e₂' ← checkExp e₂ t
@@ -228,10 +228,10 @@ module CheckDeclarations where
     IMonadTCDecl ._>>=_ = bindTCDecl
     IMonadTCDecl .super = IApplicativeTCDecl
 
-  -- Get the current environment.
+  -- -- Get the current environment.
 
-  get : ∀{Γ} → TCDecl Γ Γ (TCCxt Γ)
-  get .runTCDecl γ = ok (γ , γ)
+  -- get : ∀{Γ} → TCDecl Γ Γ (TCCxt Γ)
+  -- get .runTCDecl γ = ok (γ , γ)
 
   -- Lifting a TCExp computation into TCDecl.
 
@@ -262,7 +262,8 @@ module CheckDeclarations where
 
     -- Checking a single declaration.
 
-    checkDecl : ∀ {Γ} (d : A.Decl) (let t = A.declType d) → TCDecl Γ (t ∷ Γ) (Decl Γ t)
+    checkDecl : ∀ {Γ} (d : A.Decl) (let t = A.declType d)
+      → TCDecl Γ (t ∷ Γ) (Decl Γ t)
 
     checkDecl (A.dInit t x e) = do
       e' ← lift $ checkExp e t
@@ -271,7 +272,8 @@ module CheckDeclarations where
 
     -- Checking a list of declarations.
 
-    checkDecls : ∀ {Γ} (ds : List A.Decl) (let Γ' = Nexts Γ ds) → TCDecl Γ Γ' (Decls Γ Γ')
+    checkDecls : ∀ {Γ} (ds : List A.Decl) (let Γ' = Nexts Γ ds)
+      → TCDecl Γ Γ' (Decls Γ Γ')
 
     checkDecls []       = return []
     checkDecls (d ∷ ds) = do
@@ -280,7 +282,9 @@ module CheckDeclarations where
 
   -- Checking the program in TCDecl.
 
-  checkProgram : (prg : A.Program) → TCDecl [] (Nexts [] (A.theDecls prg)) Program
+  checkProgram : (prg : A.Program) (let Γ = Nexts [] (A.theDecls prg))
+    → TCDecl [] Γ Program
+
   checkProgram (A.program ds ss e) = do
     ds' ← checkDecls ds
     ss' ← lift $ checkStms ss
