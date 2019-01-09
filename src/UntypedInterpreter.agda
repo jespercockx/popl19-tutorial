@@ -101,42 +101,42 @@ module ExecStm where
     else (y , w) ∷ updateEnv x v ρ
 
   -- Execution is parameterized by a number (fuel : ℕ)
-  -- that limits the number of computation steps.
+  -- that limits the number of executions of while loops.
   -- This is necessary to please Agda's termination checker.
 
   mutual
 
     execStm : (fuel : ℕ) → Stm → Env → Maybe Env
-    execStm 0 _ _ = nothing
 
-    execStm (suc n) (sAss x e) ρ = case eval ρ e of λ where
+    execStm _ (sAss x e) ρ = case eval ρ e of λ where
       (just v) → just (updateEnv x v ρ)
       nothing  → nothing
 
-    execStm (suc n) (sWhile e ss) ρ = case eval ρ e of λ where
-      (just (boolV true)) → case execStms n ss ρ of λ where
-        (just ρ') → execStm n (sWhile e ss) ρ'
+    execStm fuel (sIfElse e ss ss') ρ = case eval ρ e of λ where
+      (just (boolV true))  → execStms fuel ss ρ
+      (just (boolV false)) → execStms fuel ss' ρ
+      _                    → nothing
+
+    execStm 0          (sWhile e ss) ρ = nothing
+    execStm (suc fuel) (sWhile e ss) ρ = case eval ρ e of λ where
+      (just (boolV true)) → case execStms fuel ss ρ of λ where
+        (just ρ') → execStm fuel (sWhile e ss) ρ'
         nothing   → nothing
       (just (boolV false)) → just ρ
       _                    → nothing
 
-    execStm (suc n) (sIfElse e ss ss') ρ = case eval ρ e of λ where
-      (just (boolV true))  → execStms n ss ρ
-      (just (boolV false)) → execStms n ss' ρ
-      _                    → nothing
-
     execStms : (fuel : ℕ) → List Stm → Env → Maybe Env
-    execStms n [] ρ = just ρ
-    execStms n (s ∷ ss) ρ = case execStm n s ρ of λ where
-      (just ρ') → execStms n ss ρ'
+    execStms _    []       ρ = just ρ
+    execStms fuel (s ∷ ss) ρ = case execStm fuel s ρ of λ where
+      (just ρ') → execStms fuel ss ρ'
       nothing   → nothing
 
   -- We evaluate a program by first executing the declarations,
   -- then the statements, and finally evaluating the main expression.
 
   evalPrg : (fuel : ℕ) → Program → Maybe ℤ
-  evalPrg n (program ds ss e) = case execDecls ds [] of λ where
-    (just ρ₀) → case execStms n ss ρ₀ of λ where
+  evalPrg fuel (program ds ss e) = case execDecls ds [] of λ where
+    (just ρ₀) → case execStms fuel ss ρ₀ of λ where
       (just ρ) → case eval ρ e of λ where
         (just (intV v)) → just v
         _               → nothing
