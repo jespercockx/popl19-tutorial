@@ -12,3 +12,5 @@ trash.md
 /src/Main
 /src/MAlonzo/
 /src/runwhile
+/slides/_build
+/slides/slides.html
