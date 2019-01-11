@@ -18,39 +18,22 @@ Name = String
 idToName : A.Id → Name
 idToName (A.mkId x) = String.fromList x
 
--- Decorating list elements with unique identifiers.
---
--- NameDecorated xs is a decoration of the elements
--- of list xs with unique Names.
-
-record NameDecorated {A : Set} (xs : List A) : Set where
-  field
-    scope : AssocList Name xs
-    uniq  : UniqueRange scope
-open NameDecorated
-
--- The empty list has the empty decoration.
-
-[]ⁿ : ∀{A} → NameDecorated {A} []
-[]ⁿ .scope = []
-[]ⁿ .uniq  = []ᵘ
-
 -- Local context for the type checker.
 
 TCCxt : (Γ : Cxt) → Set
-TCCxt = NameDecorated {Type}
+TCCxt Γ = AssocList Name Γ
 
 -- Querying the local context.
 
 -- y ↦ x ∈Γ γ  states that index y points to identifier x in type checking context γ.
 
 _↦_∈Γ_ : ∀{t Γ} (y : Var Γ t) (x : Name) (γ : TCCxt Γ) → Set
-t∈Γ ↦ x ∈Γ γ = t∈Γ ↦ x ∈ scope γ
+t∈Γ ↦ x ∈Γ γ = t∈Γ ↦ x ∈ γ
 
 -- x ∈?Γ γ  tests whether identifier x is bound in type checking environment γ.
 
 _∈?Γ_ : ∀{Γ} (x : Name) (γ : TCCxt Γ) → Dec (∃₂ λ t (y : Var Γ t) → y ↦ x ∈Γ γ)
-x ∈?Γ γ = ?↦ x ∈ scope γ
+x ∈?Γ γ = ?↦ x ∈ γ
 
 -- Type errors.
 --
@@ -61,14 +44,12 @@ x ∈?Γ γ = ?↦ x ∈ scope γ
 
 data TypeError : Set where
   unboundVariable        : Name → TypeError
-  shadowingDeclaration   : Name → TypeError
   typeMismatch           : (tinf texp : Type)  → tinf ≢ texp → TypeError
 
 instance
   PrintError : Print TypeError
   PrintError .print = λ where
     (unboundVariable x)        → "unbound variable " String.++ x
-    (shadowingDeclaration x)   → "illegal shadowing by "  String.++ x
     (typeMismatch tinf texp _) → String.concat $
       "type mismatch: expected " ∷ print texp ∷
       ", but inferred " ∷ print tinf ∷ []
@@ -237,10 +218,8 @@ module CheckDeclarations where
 
   addVar : ∀{Γ} (x : Name) t → TCDecl Γ (t ∷ Γ) ⊤
   addVar {Γ = Γ} x t .runTCDecl γ =
-    -- Try to uniquely extend the context.
-    case t ↦ x ∷ᵘ? uniq γ of λ where
-      (yes us) → ok (_ , record { uniq = us })
-      (no _)  → fail (shadowingDeclaration x)
+    -- Extend the context with x.
+    ok (_ , (t ↦ x ∷ γ))
 
   -- Predicting the next shape of the context.
 
@@ -287,7 +266,7 @@ module CheckDeclarations where
 ---------------------------------------------------------------------------
 
 checkProgram : (prg : A.Program) → Error Program
-checkProgram prg = proj₁ <$> CheckDeclarations.checkProgram prg .runTCDecl []ⁿ
+checkProgram prg = proj₁ <$> CheckDeclarations.checkProgram prg .runTCDecl []
   where open ErrorMonad
 
 
