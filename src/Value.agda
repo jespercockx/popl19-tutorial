@@ -19,7 +19,7 @@ instance
 -- Well-typed Environments.
 
 Env : Cxt → Set
-Env = List.All Val
+Env = All Val
 
 -- Semantics of operations.
 

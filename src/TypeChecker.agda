@@ -5,8 +5,6 @@
 module TypeChecker where
 
 open import Library
-open AssocList
-open AssocList.DecidableRange
 
 import AST as A
 open import WellTypedSyntax
@@ -24,16 +22,6 @@ TCCxt : (Γ : Cxt) → Set
 TCCxt Γ = AssocList Name Γ
 
 -- Querying the local context.
-
--- y ↦ x ∈Γ γ  states that index y points to identifier x in type checking context γ.
-
-_↦_∈Γ_ : ∀{t Γ} (y : Var Γ t) (x : Name) (γ : TCCxt Γ) → Set
-t∈Γ ↦ x ∈Γ γ = t∈Γ ↦ x ∈ γ
-
--- x ∈?Γ γ  tests whether identifier x is bound in type checking environment γ.
-
-_∈?Γ_ : ∀{Γ} (x : Name) (γ : TCCxt Γ) → Dec (∃₂ λ t (y : Var Γ t) → y ↦ x ∈Γ γ)
-x ∈?Γ γ = ?↦ x ∈ γ
 
 -- Type errors.
 --
@@ -73,7 +61,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
   lookupVar : (x : Name) → M (∃ λ t → Var Γ t)
   lookupVar x =
-    case x ∈?Γ γ of λ where
+    case ?↦ x ∈ γ of λ where
       (yes (t , x' , _)) → return (t , x')
       (no ¬p)            → throwError $ unboundVariable x
 
@@ -201,11 +189,6 @@ module CheckDeclarations where
     IMonadTCDecl ._>>=_ = bindTCDecl
     IMonadTCDecl .super = IApplicativeTCDecl
 
-  -- -- Get the current environment.
-
-  -- get : ∀{Γ} → TCDecl Γ Γ (TCCxt Γ)
-  -- get .runTCDecl γ = ok (γ , γ)
-
   -- Lifting a TCExp computation into TCDecl.
 
   lift : ∀{Γ A} (m : TCExp Γ A) → TCDecl Γ Γ A
@@ -217,9 +200,7 @@ module CheckDeclarations where
   -- Add a variable declaration.
 
   addVar : ∀{Γ} (x : Name) t → TCDecl Γ (t ∷ Γ) ⊤
-  addVar {Γ = Γ} x t .runTCDecl γ =
-    -- Extend the context with x.
-    ok (_ , (t ↦ x ∷ γ))
+  addVar {Γ = Γ} x t .runTCDecl γ = ok (_ , (t ↦ x ∷ γ))
 
   -- Predicting the next shape of the context.
 
@@ -227,7 +208,7 @@ module CheckDeclarations where
   Next Γ s = A.declType s ∷ Γ
 
   Nexts : (Γ : Cxt) (ss : List A.Decl) → Cxt
-  Nexts = List.foldl Next
+  Nexts = foldl Next
 
   mutual
 

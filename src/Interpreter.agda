@@ -18,7 +18,7 @@ module EvalExp {Γ} (ρ : Env Γ) where
   eval : ∀{t} (e : Exp Γ t) → Val t
   eval (eInt  i)              = i
   eval (eBool b)              = b
-  eval (eVar x)               = List.All.lookup ρ x
+  eval (eVar x)               = All.lookup ρ x
   eval (eOp plus e₁ e₂)       = eval e₁ + eval e₂
   eval (eOp gt  e₁ e₂)        = iGt (eval e₁) (eval e₂)
   eval (eOp and e₁ e₂)        = case eval e₁ of λ where
@@ -88,7 +88,7 @@ module ExecStm {Γ : Cxt} where
 
     execStm (sAss x e) = do
       v ← evalExp e
-      modify $ List.All.updateWith x (λ _ → v)
+      modify $ All.updateWith x (λ _ → v)
 
     execStm (sIfElse e ss ss') = do
       b ← evalExp e

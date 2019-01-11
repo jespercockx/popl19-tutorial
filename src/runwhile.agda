@@ -24,7 +24,6 @@ parse contents = do
       exitFailure
     (ok prg) → return prg
   where
-  open IOMonad
   open Parser using (Err; ok; bad)
 
 -- Type check.
@@ -40,8 +39,7 @@ check prg = do
       exitFailure
     (ok prg') → return prg'
   where
-  open IOMonad
-  open ErrorMonad   using (fail; ok)
+  open ErrorMonad using (fail; ok)
 
 -- Interpret.
 
@@ -54,7 +52,6 @@ usage : IO ⊤
 usage = do
   putStrLn "Usage: runwhile <SourceFile>"
   exitFailure
-  where open IOMonad
 
 -- Parse command line argument and send file content through pipeline.
 
@@ -63,7 +60,6 @@ runwhile = do
   file ∷ [] ← getArgs where _ → usage
   run =<< check =<< parse =<< readFiniteFile file
   return _
-  where open IOMonad
 
 main = runwhile
 
