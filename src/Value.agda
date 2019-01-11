@@ -26,7 +26,7 @@ Env = List.All Val
 -- Boolean negation.
 
 bNot : Boolean → Boolean
-bNot true = false
+bNot true  = false
 bNot false = true
 
 -- Greater-than on integers.
@@ -35,9 +35,3 @@ iGt : (i j : ℤ) → Boolean
 iGt i j = case i Integer.<= j of λ where
   false → true
   true  → false
-
--- Integer arithmetic.
-
-iArith : (op : ArithOp) (i j : ℤ) → ℤ
-iArith plus  i j = i Integer.+ j
-iArith minus i j = i Integer.- j

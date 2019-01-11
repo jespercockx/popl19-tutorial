@@ -59,14 +59,8 @@ module EvalExp (ρ : Env) where
   eval (ePlus e₁ e₂) = case (eval e₁ , eval e₂) of λ where
     (just (intV i) , just (intV j)) → just (intV (i + j))
     _ → nothing
-  eval (eMinus e₁ e₂) = case (eval e₁ , eval e₂) of λ where
-    (just (intV i) , just (intV j)) → just (intV (i - j))
-    _ → nothing
   eval (eGt e₁ e₂) = case (eval e₁ , eval e₂) of λ where
     (just (intV i) , just (intV j)) → just (boolV (iGt i j))
-    _ → nothing
-  eval (eAnd e₁ e₂) = case (eval e₁ , eval e₂) of λ where
-    (just (boolV b₁) , just (boolV b₂)) → just (boolV (bAnd b₁ b₂))
     _ → nothing
 
 open EvalExp
@@ -111,11 +105,6 @@ module ExecStm where
     execStm _ (sAss x e) ρ = case eval ρ e of λ where
       (just v) → just (updateEnv x v ρ)
       nothing  → nothing
-
-    execStm fuel (sIfElse e ss ss') ρ = case eval ρ e of λ where
-      (just (boolV true))  → execStms fuel ss ρ
-      (just (boolV false)) → execStms fuel ss' ρ
-      _                    → nothing
 
     execStm 0          (sWhile e ss) ρ = nothing
     execStm (suc fuel) (sWhile e ss) ρ = case eval ρ e of λ where

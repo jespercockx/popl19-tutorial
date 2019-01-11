@@ -111,9 +111,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
       (t , x') ← lookupVar (idToName x)
       return (t , eVar x')
 
-    inferExp (A.eNot   e)     = ((bool ,_) ∘′ eNot) <$> checkExp e bool
-    inferExp (A.ePlus  e₁ e₂) = inferOp (arith plus)  e₁ e₂
-    inferExp (A.eMinus e₁ e₂) = inferOp (arith minus) e₁ e₂
+    inferExp (A.ePlus  e₁ e₂) = inferOp plus  e₁ e₂
 
     inferExp (A.eGt    e₁ e₂) = inferOp gt    e₁ e₂
 
@@ -152,12 +150,6 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
       e'  ← checkExp e bool
       ss' ← checkStms ss
       return (sWhile e' ss')
-
-    checkStm (A.sIfElse e ss₁ ss₂) = do
-      e'   ← checkExp e bool
-      ss₁' ← checkStms ss₁
-      ss₂' ← checkStms ss₂
-      return (sIfElse e' ss₁' ss₂')
 
     -- Checking a list of statements.
 

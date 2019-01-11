@@ -12,16 +12,11 @@ Cxt = List Type
 Var : (Γ : Cxt) (t : Type) → Set
 Var Γ t = t ∈ Γ
 
--- Arithmetical operators.
-
-data ArithOp : Set where
-  plus minus : ArithOp
-
 -- Binary Operators.
 
 data Op : (dom codom : Type) → Set where
-  arith : (op : ArithOp) → Op int int
-  gt    : Op int bool
+  plus  : Op int  int
+  gt    : Op int  bool
   and   : Op bool bool
 
 -- Well-typed expressions: context is fixed.
@@ -31,7 +26,6 @@ data Exp (Γ : Cxt) : Type → Set where
   eInt  : (i : ℤ)                                 → Exp Γ int
   eBool : (b : Boolean)                           → Exp Γ bool
   -- Operators:
-  eNot  : (e : Exp Γ bool)                        → Exp Γ bool
   eOp   : ∀{t t'} (op : Op t t') (e e' : Exp Γ t) → Exp Γ t'
   -- Variables:
   eVar  : ∀{t}    (x : Var Γ t)                   → Exp Γ t

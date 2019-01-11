@@ -31,9 +31,7 @@ data Exp : Set where
   eId       : (x : Id)                 → Exp
   eInt      : (i : ℤ)                  → Exp
   eBool     : (b : Boolean)            → Exp
-  eNot      : (e : Exp)                → Exp
   ePlus     : (e e' : Exp)             → Exp
-  eMinus    : (e e' : Exp)             → Exp
   eGt       : (e e' : Exp)             → Exp
   eAnd      : (e e' : Exp)             → Exp
 
@@ -42,9 +40,7 @@ data Exp : Set where
   ( EId
   | EInt
   | EBool
-  | ENot
   | EPlus
-  | EMinus
   | EGt
   | EAnd
   ) #-}
@@ -63,12 +59,10 @@ open Decl public
 data Stm : Set where
   sAss    : (x : Id) (e : Exp)            → Stm
   sWhile  : (e : Exp) (ss : List Stm)     → Stm
-  sIfElse : (e : Exp) (ss ss' : List Stm) → Stm
 
 {-# COMPILE GHC Stm = data Stm
   ( SAss
   | SWhile
-  | SIfElse
   ) #-}
 
 record Program : Set where

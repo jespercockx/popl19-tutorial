@@ -19,8 +19,7 @@ module EvalExp {Γ} (ρ : Env Γ) where
   eval (eInt  i)              = i
   eval (eBool b)              = b
   eval (eVar x)               = List.All.lookup ρ x
-  eval (eNot e)               = bNot (eval e)
-  eval (eOp (arith op) e₁ e₂) = iArith op (eval e₁) (eval e₂)
+  eval (eOp plus e₁ e₂)       = eval e₁ + eval e₂
   eval (eOp gt  e₁ e₂)        = iGt (eval e₁) (eval e₂)
   eval (eOp and e₁ e₂)        = case eval e₁ of λ where
     true  → eval e₂
