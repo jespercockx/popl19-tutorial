@@ -53,13 +53,9 @@ open ErrorMonad {E = TypeError}
 
 module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
-  -- We work in the error monad.
-
-  M = Error
-
   -- Environment.
 
-  lookupVar : (x : Name) → M (∃ λ t → Var Γ t)
+  lookupVar : (x : Name) → Error (∃ λ t → Var Γ t)
   lookupVar x =
     case ?↦ x ∈ γ of λ where
       (yes (t , x' , _)) → return (t , x')
@@ -71,7 +67,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
     -- Type inference.
 
-    inferExp : (e : A.Exp) → M (∃ λ (t : Type) → Exp Γ t)
+    inferExp : (e : A.Exp) → Error (∃ λ (t : Type) → Exp Γ t)
 
     inferExp (A.eInt i)  = return (int  , eInt  i)
     inferExp (A.eBool b) = return (bool , eBool b)
@@ -89,7 +85,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
     -- Type checking.
     -- Calls inference and checks inferred type against given type.
 
-    checkExp : (e : A.Exp) (t : Type) → M (Exp Γ t)
+    checkExp : (e : A.Exp) (t : Type) → Error (Exp Γ t)
     checkExp e t = do
       (t' , e') ← inferExp e
       case t' ≟ t of λ where
@@ -98,7 +94,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
     -- Operators.
 
-    inferOp : ∀{t t'} (op : Op t t') (e₁ e₂ : A.Exp) → M (∃ λ t → Exp Γ t)
+    inferOp : ∀{t t'} (op : Op t t') (e₁ e₂ : A.Exp) → Error (∃ λ t → Exp Γ t)
     inferOp {t} {t'} op e₁ e₂ = do
       e₁' ← checkExp e₁ t
       e₂' ← checkExp e₂ t
@@ -108,7 +104,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
     -- Checking a single statement.
 
-    checkStm : (s : A.Stm) → M (Stm Γ)
+    checkStm : (s : A.Stm) → Error (Stm Γ)
 
     checkStm (A.sAss x e) = do
       (t , x') ← lookupVar (idToName x)
@@ -122,7 +118,7 @@ module CheckExpressions {Γ : Cxt} (γ : TCCxt Γ) where
 
     -- Checking a list of statements.
 
-    checkStms : (ss : List A.Stm) → M (Stms Γ)
+    checkStms : (ss : List A.Stm) → Error (Stms Γ)
     checkStms []       = return []
     checkStms (s ∷ ss) = do
       s' ← checkStm s
@@ -248,7 +244,6 @@ module CheckDeclarations where
 
 checkProgram : (prg : A.Program) → Error Program
 checkProgram prg = proj₁ <$> CheckDeclarations.checkProgram prg .runTCDecl []
-  where open ErrorMonad
 
 
 -- -}
