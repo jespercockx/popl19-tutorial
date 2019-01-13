@@ -3,7 +3,7 @@
 title: "Correct-by-construction programming in Agda"
 subtitle: "Tutorial at POPL 2019"
 author: "Andreas Abel and Jesper Cockx"
-date: "January 14 2019"
+date: "14 January 2019"
 
 transition: "linear"
 center: "true"
@@ -52,11 +52,16 @@ Programs may contain **holes** (`?` or `{! !}`).
 
 ## Installation
 
-Agda: `cabal install agda && agda-mode setup`
-
+Agda:
+```bash
+cabal install agda && agda-mode setup
+```
 Standard library: see [github.com/agda/agda-stdlib](https://github.com/agda/agda-stdlib#quick-installation-instructions)
 
-BNFC: `cabal install bnfc`
+BNFC:
+```bash
+cabal install bnfc
+```
 
 # Correct-by-construction programming
 
@@ -150,11 +155,12 @@ int main () {
 ```
 
 ## Structure of a WHILE program
+
 ```c
 int main () {
-  <type> var₁ = expr₁;
+  type₁ var₁ = expr₁;
   ...
-  <type> varₘ = exprₘ;
+  typeₘ varₘ = exprₘ;
   stmt₁
   ...
   stmtₙ
@@ -215,15 +221,15 @@ module SimpleData where
 
 ```agda
   data Type : Set where
-    bool int : Type
+    bool int : Type              -- t ::= bool | int
 
   data Exp : Set where
     eId   : (x : Id)      → Exp  -- x,y,z,...
     eInt  : (i : ℤ)       → Exp  -- ...-2,-1,0,1,2...
     eBool : (b : Boolean) → Exp  -- true or false
-    ePlus : (e e' : Exp)  → Exp  -- x+y
-    eGt   : (e e' : Exp)  → Exp  -- x>y
-    eAnd  : (e e' : Exp)  → Exp  -- x&&y
+    ePlus : (e e' : Exp)  → Exp  -- e+e'
+    eGt   : (e e' : Exp)  → Exp  -- e>e'
+    eAnd  : (e e' : Exp)  → Exp  -- e&&e'
 ```
 
 ## Statement syntax for WHILE
@@ -240,9 +246,9 @@ module SimpleData where
 
 ```agda
   record Decl : Set where
-    constructor dInit   -- <type> x = e;
+    constructor dInit   -- t x = e;
     field
-      declType : Type   -- variable type
+      declType : Type   -- variable type (t)
       declId   : Id     -- variable name (x)
       declExp  : Exp    -- initial value (e)
   open Decl public
@@ -352,7 +358,7 @@ Bind Haskell datatype to Agda datatype:
     ) #-}
 ```
 
-## BNFC: the Bachus-Nauer Form Compiler
+## BNFC: the Bachus-Naur Form Compiler
 
 BNFC is a Haskell library for generating Haskell code from a grammar:
 
@@ -526,7 +532,8 @@ Extend the typechecker with rules for the new syntactic constructions you added.
 
 ## Coinduction in Agda
 
-Coinductive type = type containing infinite values
+Coinductive type may contain infinitely deep values
+(non well-founded trees)
 <!--
 ```agda
 module Coinduction where
@@ -629,7 +636,7 @@ module SizedTypes where
 WHILE statements can have two effects:
 
 - Modify the environment   ⇒ `State` monad
-- Go into an infinite loop ⇒ `Delay` monad
+- Go into a loop           ⇒ `Delay` monad
 
 We combine both effects in the `Exec` monad.
 
