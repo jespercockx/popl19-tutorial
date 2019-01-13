@@ -400,7 +400,7 @@ module IndexedData where
     []  : Vec A zero
     _∷_ : {n : ℕ} → A → Vec A n → Vec A (suc n)
 ```
-(like GADTs in Haskell)
+(like GADTs in Haskell/Ocaml)
 
 ## Dependent pattern matching
 
