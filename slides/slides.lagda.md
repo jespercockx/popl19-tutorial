@@ -498,11 +498,11 @@ module Instances where
 
   instance
     PrintBool : Print Bool
-    PrintBool .print true  = "true"
-    PrintBool .print false = "false"
+    print {{PrintBool}} true  = "true"
+    print {{PrintBool}} false = "false"
 
     PrintString : Print String
-    PrintString .print x = x
+    print {{PrintString}} x = x
 
   testPrint : String
   testPrint = (print true) ++ (print "a string")

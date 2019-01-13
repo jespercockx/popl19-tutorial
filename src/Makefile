@@ -9,7 +9,8 @@ parser=While/Test
 ## Agda program
 ###########################################################################
 
-agda=agda-2.5.4.2
+# agda=agda-2.5.4.2
+agda=agda
 ghcflags=--ghc-flag=-i../haskell --ghc-flag=-Wwarn
 
 # runwhile.agda must be first
