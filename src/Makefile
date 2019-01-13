@@ -24,7 +24,7 @@ test : runwhile
 	make -C ../test
 
 parser : $(parser)
-	./$(parser) ../test/fib.c
+	./$(parser) ../test/gcd.c
 
 
 ## Haskell parser

@@ -376,7 +376,7 @@ Extend the BNFC grammar with the new syntactic constructions you added.
 
 Don't forget to update the Haskell bindings in `AST.agda`!
 
-Testing the grammar: `make parser` will compile the parser and run it on `/test/fib.c`.
+Testing the grammar: `make parser` will compile the parser and run it on `/test/gcd.c`.
 
 # Dependent types and indexed datatypes
 
