@@ -22,6 +22,20 @@ Agda is...
   Haskell
 * An interactive theorem prover in the tradition of Martin-Löf
 
+## Installation
+
+Agda (needs GHC):
+```bash
+cabal install alex happy
+cabal install Agda && agda-mode setup
+```
+Standard library: see [github.com/agda/agda-stdlib](https://github.com/agda/agda-stdlib#quick-installation-instructions)
+
+BNFC (also needs `alex` and `happy`):
+```bash
+cabal install BNFC
+```
+
 ## Main features of Agda
 
 - Dependent types
@@ -49,19 +63,6 @@ Programs may contain **holes** (`?` or `{! !}`).
   * Introduce a lambda or constructor
   * Apply given function to some new holes
 - **`C-c C-c`**: case split on a variable
-
-## Installation
-
-Agda:
-```bash
-cabal install agda && agda-mode setup
-```
-Standard library: see [github.com/agda/agda-stdlib](https://github.com/agda/agda-stdlib#quick-installation-instructions)
-
-BNFC:
-```bash
-cabal install bnfc
-```
 
 # Correct-by-construction programming
 
@@ -144,11 +145,12 @@ module Intro where
 Implement a correct-by-construction **typechecker** + **interpreter** for a C-like language (WHILE)
 ```c
 int main () {
-  int n = 100;
+  int n   = 100;
   int sum = 0;
-  while (n > 0) {
-    sum = sum + n;
-    n = n - 1;
+  int k   = 0;
+  while (n > k) {
+    k   = k   + 1;
+    sum = sum + k;
   }
   printInt(sum);
 }
@@ -256,9 +258,9 @@ module SimpleData where
   record Program : Set where
     constructor program
     field
-      theDecls : List Decl
-      theStms  : List Stm
-      theMain  : Exp
+      theDecls : List Decl  -- t x = e; ...
+      theStms  : List Stm   -- ss
+      theMain  : Exp        -- printInt(e);
   open Program public
 ```
 
@@ -301,9 +303,9 @@ But WHILE programs can loop!
 
 Go to `AST.agda` and extend the syntax with one or more of the following:
 
-- Boolean negation `!x`
-- Integer subtraction `x-y`
-- Conditionals `if (x) { d₁ } else { d₂ }
+- Boolean negation: `!e`
+- Integer subtraction: `e₁-e₂`
+- Conditionals: `if (e) { ss₁ } else { ss₂ }`{.c}
 
 Ignore the pragmas `{-# COMPILE ... #-}` for now.
 
@@ -358,7 +360,7 @@ Bind Haskell datatype to Agda datatype:
     ) #-}
 ```
 
-## BNFC: the Bachus-Naur Form Compiler
+## BNFC: the Backus-Naur Form Compiler
 
 BNFC is a Haskell library for generating Haskell code from a grammar:
 
