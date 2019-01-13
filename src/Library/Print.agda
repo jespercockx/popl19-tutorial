@@ -27,7 +27,7 @@ private
 
 instance
   PrintInt : Print ℤ
-  PrintInt .print = printInt
+  print {{PrintInt}} = printInt
 
   PrintBool : Print Bool
-  PrintBool .print = printBool
+  print {{PrintBool}} = printBool

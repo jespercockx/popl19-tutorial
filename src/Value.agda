@@ -13,8 +13,8 @@ Val bool   = Boolean
 
 instance
   PrintVal : ∀ {t} → Print (Val t)
-  PrintVal {int}  .print i = print {{PrintInt}} i
-  PrintVal {bool} .print b = print {{PrintBoolean}} b
+  print {{PrintVal {int} }} i = print {{PrintInt}} i
+  print {{PrintVal {bool}}} b = print {{PrintBoolean}} b
 
 -- Well-typed Environments.
 

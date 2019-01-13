@@ -59,15 +59,15 @@ module ExecStm {Γ : Cxt} where
       (a , ρ') → k a .runExec ρ'
 
   instance
-    FunctorExec : ∀ {i} → Functor (Exec i)
-    FunctorExec .fmap f mx = bindExec mx (λ x → returnExec (f x))
+    functorExec : ∀ {i} → Functor (Exec i)
+    fmap {{functorExec}} f mx = bindExec mx (λ x → returnExec (f x))
 
-    ApplicativeExec : ∀ {i} → Applicative (Exec i)
-    ApplicativeExec .pure  = returnExec
-    ApplicativeExec ._<*>_ mf mx = bindExec mf (_<$> mx)
+    applicativeExec : ∀ {i} → Applicative (Exec i)
+    pure  {{applicativeExec}}       = returnExec
+    _<*>_ {{applicativeExec}} mf mx = bindExec mf (_<$> mx)
 
-    MonadExec : ∀ {i} → Monad (Exec i)
-    MonadExec ._>>=_ = bindExec
+    monadExec : ∀ {i} → Monad (Exec i)
+    _>>=_ {{monadExec}} = bindExec
 
   -- Updating the environment.
 

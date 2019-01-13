@@ -16,18 +16,18 @@ module ErrorMonad {e} {E : Set e} where
   pattern ok   val = inj₂ val
 
   instance
-    FunctorError : ∀ {a} → Functor (Error {a})
-    FunctorError .fmap f (fail err) = fail err
-    FunctorError .fmap f (ok   a  ) = ok (f a)
+    functorError : ∀ {a} → Functor (Error {a})
+    fmap {{functorError}} f (fail err) = fail err
+    fmap {{functorError}} f (ok   a  ) = ok (f a)
 
-    ApplicativeError : ∀ {a} → Applicative (Error {a})
-    ApplicativeError .pure               = ok
-    ApplicativeError ._<*>_ (fail err) x = fail err
-    ApplicativeError ._<*>_ (ok   f  ) x = f <$> x
+    applicativeError : ∀ {a} → Applicative (Error {a})
+    pure  {{applicativeError}}              = ok
+    _<*>_ {{applicativeError}} (fail err) x = fail err
+    _<*>_ {{applicativeError}} (ok   f  ) x = f <$> x
 
-    MonadError : ∀ {a} → Monad (Error {a})
-    MonadError ._>>=_ (fail err) k = fail err
-    MonadError ._>>=_ (ok   a  ) k = k a
+    monadError : ∀ {a} → Monad (Error {a})
+    _>>=_ {{monadError}} (fail err) k = fail err
+    _>>=_ {{monadError}} (ok   a  ) k = k a
 
   liftM2 : ∀ {ℓ} {A B C : Set ℓ} (f : A → B → C) → Error A → Error B → Error C
   liftM2 f m n = f <$> m <*> n

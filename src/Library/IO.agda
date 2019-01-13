@@ -32,12 +32,12 @@ postulate
 {-# COMPILE GHC readInt        = (System.IO.readLn :: System.IO.IO Integer) #-}
 
 instance
-  FunctorIO : ∀ {a} → Functor (IO {a})
-  FunctorIO .fmap f mx = mx IO.Primitive.>>= λ x → IO.Primitive.return (f x)
+  functorIO : ∀ {a} → Functor (IO {a})
+  fmap {{functorIO}} f mx = mx IO.Primitive.>>= λ x → IO.Primitive.return (f x)
 
-  ApplicativeIO : ∀ {a} → Applicative (IO {a})
-  ApplicativeIO .pure        = IO.Primitive.return
-  ApplicativeIO ._<*>_ mf mx = mf IO.Primitive.>>= λ f → f <$> mx
+  applicativeIO : ∀ {a} → Applicative (IO {a})
+  pure  {{applicativeIO}}       = IO.Primitive.return
+  _<*>_ {{applicativeIO}} mf mx = mf IO.Primitive.>>= λ f → f <$> mx
 
-  MonadIO : ∀ {a} → Monad (IO {a})
-  MonadIO ._>>=_ = IO.Primitive._>>=_
+  monadIO : ∀ {a} → Monad (IO {a})
+  _>>=_ {{monadIO}} = IO.Primitive._>>=_

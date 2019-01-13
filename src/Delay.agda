@@ -44,15 +44,15 @@ private
     (later' m') → later' (bindDelay m' k)
 
 instance
-  FunctorDelay : ∀ {i} → Functor (Delay i)
-  FunctorDelay .fmap f mx = bindDelay mx (λ x → returnDelay (f x))
+  functorDelay : ∀ {i} → Functor (Delay i)
+  fmap {{functorDelay}} f mx = bindDelay mx (λ x → returnDelay (f x))
 
-  ApplicativeDelay : ∀ {i} → Applicative (Delay i)
-  ApplicativeDelay .pure  = returnDelay
-  ApplicativeDelay ._<*>_ mf mx = bindDelay mf (_<$> mx)
+  applicativeDelay : ∀ {i} → Applicative (Delay i)
+  pure  {{applicativeDelay}}       = returnDelay
+  _<*>_ {{applicativeDelay}} mf mx = bindDelay mf (_<$> mx)
 
-  MonadDelay : ∀ {i} → Monad (Delay i)
-  MonadDelay ._>>=_ = bindDelay
+  monadDelay : ∀ {i} → Monad (Delay i)
+  _>>=_ {{monadDelay}} = bindDelay
 
 -- Unwinding the delay monad might not terminate.
 

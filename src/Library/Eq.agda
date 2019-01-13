@@ -32,24 +32,24 @@ open Eq {{...}} public
 -- Instances for basic types
 
 instance
-  EqBool : Eq Bool
-  EqBool ._≟_ = Data.Bool.Base._≟_
+  eqBool : Eq Bool
+  _≟_ {{eqBool}} = Data.Bool.Base._≟_
 
 instance
-  Eqℤ : Eq ℤ
-  Eqℤ ._≟_ = Data.Integer._≟_
+  eqℤ : Eq ℤ
+  _≟_ {{eqℤ}} = Data.Integer._≟_
 
 instance
-  EqChar : Eq Char
-  EqChar ._≟_ = Data.Char.Unsafe._≟_
+  eqChar : Eq Char
+  _≟_ {{eqChar}} = Data.Char.Unsafe._≟_
 
 instance
-  EqString : Eq String
-  EqString ._≟_ = Data.String.Unsafe._≟_
+  eqString : Eq String
+  _≟_ {{eqString}} = Data.String.Unsafe._≟_
 
 instance
-  EqList : ∀ {ℓ} {A : Set ℓ} {{_ : Eq A}} → Eq (List A)
-  EqList ._≟_ = λ where
+  eqList : ∀ {ℓ} {A : Set ℓ} {{_ : Eq A}} → Eq (List A)
+  _≟_ {{eqList}} = λ where
     []       []       → yes refl
     []       (y ∷ ys) → no λ ()
     (x ∷ xs) []       → no λ ()

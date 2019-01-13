@@ -36,7 +36,7 @@ data TypeError : Set where
 
 instance
   PrintError : Print TypeError
-  PrintError .print = λ where
+  print {{PrintError}} = λ where
     (unboundVariable x)        → "unbound variable " String.++ x
     (typeMismatch tinf texp _) → String.concat $
       "type mismatch: expected " ∷ print texp ∷
@@ -174,16 +174,15 @@ module CheckDeclarations where
 
 
   instance
-    FunctorTCDecl : ∀ {Γ Γ′} → Functor (TCDecl Γ Γ′)
-    FunctorTCDecl .fmap f m = bindTCDecl m (returnTCDecl ∘′ f)
+    functorTCDecl : ∀ {Γ Γ′} → Functor (TCDecl Γ Γ′)
+    fmap {{functorTCDecl}} f m = bindTCDecl m (returnTCDecl ∘′ f)
 
-    IApplicativeTCDecl : IApplicative TCDecl
-    IApplicativeTCDecl .pure        = returnTCDecl
-    IApplicativeTCDecl ._<*>_ mf mx = bindTCDecl mf (_<$> mx)
+    iApplicativeTCDecl : IApplicative TCDecl
+    pure  {{iApplicativeTCDecl}}       = returnTCDecl
+    _<*>_ {{iApplicativeTCDecl}} mf mx = bindTCDecl mf (_<$> mx)
 
-    IMonadTCDecl : IMonad TCDecl
-    IMonadTCDecl ._>>=_ = bindTCDecl
-    IMonadTCDecl .super = IApplicativeTCDecl
+    iMonadTCDecl : IMonad TCDecl
+    _>>=_ {{iMonadTCDecl}} = bindTCDecl
 
   -- Lifting a TCExp computation into TCDecl.
 

@@ -79,7 +79,7 @@ open Program public
 
 instance
   PrintId : Print Id
-  PrintId .print (mkId s) = String.fromList s
+  print {{PrintId}} (mkId s) = String.fromList s
 
 private
   postulate
@@ -97,30 +97,30 @@ private
 
 instance
   PrintType : Print Type
-  PrintType .print = printType
+  print {{PrintType}} = printType
 
   PrintBoolean : Print Boolean
-  PrintBoolean .print = printBoolean
+  print {{PrintBoolean}} = printBoolean
 
   PrintExp : Print Exp
-  PrintExp .print = printExp
+  print {{PrintExp}} = printExp
 
   PrintStm : Print Stm
-  PrintStm .print = printStm
+  print {{PrintStm}} = printStm
 
   PrintProgram : Print Program
-  PrintProgram .print = printProgram
+  print {{PrintProgram}} = printProgram
 
 -- Eq instances
 
 instance
   EqId : Eq Id
-  EqId ._≟_ (mkId x) (mkId y) = case x ≟ y of λ where
+  _≟_ {{EqId}} (mkId x) (mkId y) = case x ≟ y of λ where
     (yes p) → yes (cong mkId p)
     (no ¬p) → no (λ { refl → ¬p refl })
 
   EqType : Eq Type
-  EqType ._≟_ = λ where
+  _≟_ {{EqType}} = λ where
     bool bool → yes refl
     bool int  → no λ ()
     int  bool → no λ ()
