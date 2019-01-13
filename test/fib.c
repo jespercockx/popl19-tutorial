@@ -6,11 +6,12 @@ int main () {
   int i = 0;
   int j = 1;
   int h = 0;
-  while (n > 0) {
+  int k = 0;
+  while (n > k) {
     h = i;
     i = j;
     j = j + h;
-    n = n - 1;
+    k = k + 1;
   }
   printInt(i);
 }
