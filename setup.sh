@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# check dependencies: cabal and git
+# install and check dependencies:
+sudo apt-get install git cabal-install emacs || true
 cabal --version || exit 1
 git   --version || exit 1
+emacs --version || exit 1
 
 # install Agda (requires GHC):
+cabal update
 cabal install alex happy
 cabal install Agda && agda-mode setup
 
