@@ -9,7 +9,16 @@ sudo apt-get install zlib1g-dev
 # install Agda (requires GHC):
 cabal update
 cabal install alex happy
-cabal install Agda && agda-mode setup
+cabal get Agda && cd Agda-2.5.4.2 && cabal install 
+
+# make sure agda is on the path
+export PATH=$PATH:$HOME/.cabal/bin
+agda --version || exit 1
+
+# setup emacs mode
+echo (setenv \"PATH\" (concat (getenv \"PATH\") \":$HOME/.cabal/bin\")) >> $HOME/.emacs
+echo (setq exec-path (append exec-path \'(\"$HOME/.cabal/bin\"))) >> $HOME/.emacs
+agda-mode setup
 
 # install standard library (requires git):
 git clone https://github.com/agda/agda-stdlib.git
