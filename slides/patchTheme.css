@@ -7,3 +7,18 @@
 }
 
 code { color: #0000CD }
+
+
+/* Left-align */
+
+.reveal .slides .title { text-align: left; } /* Title slide */
+.reveal .slide h1 { text-align: left; } /* H1 title slides */
+.reveal .slide h2 { text-align: left; } /* H2 titles */
+
+/* Text */
+p  { text-align: left; }
+
+/* NO EFFECT:
+ul { text-align: left; }
+nav { text-align: left; }
+*/

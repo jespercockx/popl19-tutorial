@@ -6,7 +6,7 @@ author: "Andreas Abel and Jesper Cockx"
 date: "14 January 2019"
 
 transition: "linear"
-center: "true"
+center: "false"
 width: "1280"
 height: "720"
 margin: "0.2"
