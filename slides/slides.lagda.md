@@ -270,7 +270,7 @@ module SimpleData where
 
 ## Untyped interpreter
 
-File `UntypedInterpreter.agda` defines an *untyped* interpreter for WHILE:
+File [UntypedInterpreter.agda](https://jespercockx.github.io/popl19-tutorial/src/html/UntypedInterpreter.html) defines an *untyped* interpreter for WHILE:
 
 ```agda
   data Val : Set where
@@ -305,7 +305,7 @@ But WHILE programs can loop!
 
 ## Exercise #1
 
-Go to `AST.agda` and extend the syntax with one or more of the following:
+Go to [AST.agda](https://jespercockx.github.io/popl19-tutorial/src/html/AST.html) and extend the syntax with one or more of the following:
 
 - Boolean negation: `!e`
 - Integer subtraction: `e₁-e₂`
@@ -313,7 +313,7 @@ Go to `AST.agda` and extend the syntax with one or more of the following:
 
 Ignore the pragmas `{-# COMPILE ... #-}` for now.
 
-Also go to `UntypedInterpreter.agda` and add the missing cases!
+Also go to [UntypedInterpreter.agda](https://jespercockx.github.io/popl19-tutorial/src/html/UntypedInterpreter.html) and add the missing cases!
 
 # Haskell FFI
 
@@ -377,15 +377,15 @@ BNFC is a Haskell library for generating Haskell code from a grammar:
 - Parser
 - Pretty-printer
 
-See `While.cf` for the grammar of WHILE.
+See [While.cf](https://jespercockx.github.io/popl19-tutorial/src/While.cf) for the grammar of WHILE.
 
 ## Exercise #2
 
 Extend the BNFC grammar with the new syntactic constructions you added.
 
-Don't forget to update the Haskell bindings in `AST.agda`!
+Don't forget to update the Haskell bindings in [AST.agda](https://jespercockx.github.io/popl19-tutorial/src/html/AST.html)!
 
-Testing the grammar: `make parser` will compile the parser and run it on `/test/gcd.c`.
+Testing the grammar: `make parser` will compile the parser and run it on [/test/gcd.c](https://jespercockx.github.io/popl19-tutorial/test/gcd.c).
 
 # Dependent types and indexed datatypes
 
@@ -456,7 +456,7 @@ A term `e : Exp Γ t` is a *well-typed* WHILE expression in context `Γ`.
           → (e e' : Exp Γ t)   → Exp Γ t'
     eVar  : ∀{t} (x : Var Γ t) → Exp Γ t
 ```
-see `WellTypedSyntax.agda`
+See [WellTypedSyntax.agda](https://jespercockx.github.io/popl19-tutorial/src/html/WellTypedSyntax.html).
 
 ## Evaluating well-typed syntax
 
@@ -475,7 +475,7 @@ We can now define `eval` for well-typed expressions:
 ```
 that **always** returns a value (bye bye `Maybe`!)
 
-See definition of `eval` in `Interpreter.agda`.
+See definition of `eval` in [Interpreter.agda](https://jespercockx.github.io/popl19-tutorial/src/html/Interpreter.html).
 
 ## Exercise #3
 
@@ -532,11 +532,11 @@ module Instances where
 
 `Monad` is a typeclass with two fields `return` and `_>>=_`.
 
-Example: `Error` monad (see `Library/Error.agda`)
+Example: `Error` monad (see [Library/Error.agda](https://jespercockx.github.io/popl19-tutorial/src/html/Library.Error.html))
 
 ## Correct-by-construction typechecker
 
-See `TypeChecker.agda`
+See [TypeChecker.agda](https://jespercockx.github.io/popl19-tutorial/src/html/TypeChecker.html).
 
 ## Exercise #4
 
@@ -682,7 +682,7 @@ We combine both effects in the `Exec` monad.
   execPrg : ∀ {i} (prg : Program) → Delay i ℤ
   execPrg prg = ⋯
 ```
-See `Interpreter.agda` for full code
+See [Interpreter.agda](https://jespercockx.github.io/popl19-tutorial/src/html/Interpreter.html) for full code.
 
 ## Exercise #5
 
