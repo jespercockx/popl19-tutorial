@@ -16,8 +16,8 @@ export PATH=$PATH:$HOME/.cabal/bin
 agda --version || exit 1
 
 # setup emacs mode
-echo (setenv \"PATH\" (concat (getenv \"PATH\") \":$HOME/.cabal/bin\")) >> $HOME/.emacs
-echo (setq exec-path (append exec-path \'(\"$HOME/.cabal/bin\"))) >> $HOME/.emacs
+echo "(setenv \"PATH\" (concat (getenv \"PATH\") \":$HOME/.cabal/bin\"))" >> $HOME/.emacs
+echo "(setq exec-path (append exec-path '(\"$HOME/.cabal/bin\")))" >> $HOME/.emacs
 agda-mode setup
 
 # install standard library (requires git):
