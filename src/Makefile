@@ -16,7 +16,7 @@ ghcflags=--ghc-flag=-i../haskell --ghc-flag=-Wwarn
 # runwhile.agda must be first
 agdafiles=runwhile.agda Library.agda Library/Eq.agda Library/Monad.agda Library/Print.agda AST.agda Parser.agda WellTypedSyntax.agda TypeChecker.agda Value.agda Delay.agda Interpreter.agda UntypedInterpreter.agda
 
-default : test
+default : all
 
 all : runwhile html test
 

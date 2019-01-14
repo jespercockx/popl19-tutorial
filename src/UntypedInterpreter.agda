@@ -1,3 +1,8 @@
+-- Untyped interpreter for the WHILE language.
+--
+-- * Runs directly on the unchecked abstract syntax tree.
+-- * May fail due to scope and other runtime errors.
+-- * while loops may not terminate.
 
 open import Library
 open import AST
@@ -15,10 +20,12 @@ instance
     (intV i)  → print i
     (boolV b) → print b
 
--- Untyped environments.
+-- Poor man's environments (association list).
 
 Env : Set
 Env = List (Id × Val)
+
+-- Looking up the value bound to a variable in an environment.
 
 lookupId : Env → Id → Maybe Val
 lookupId []             y = nothing
@@ -27,15 +34,34 @@ lookupId ((x , v) ∷ xs) y =
   then just v
   else lookupId xs y
 
+-- Adding or updating a binding in the environment.
+
+updateEnv : Id → Val → Env → Env
+updateEnv x v []            = (x , v) ∷ []
+updateEnv x v ((y , w) ∷ ρ) =
+  if x == y
+  then (x , v) ∷ ρ
+  else (y , w) ∷ updateEnv x v ρ
+
+-- -- Poor man's version, keeps history of bindings.
+-- updateEnv x v ρ = (x , v) ∷ ρ
+-- updateEnv : Id → Val → Env → Env
+
 -- Semantics of operations.
+
+-- Boolean negation.
 
 bNot : Boolean → Boolean
 bNot true = false
 bNot false = true
 
+-- Boolean conjunction.
+
 bAnd : Boolean → Boolean → Boolean
 bAnd true  b = b
 bAnd false _ = false
+
+-- Greater-than on integers.
 
 iGt : (i j : ℤ) → Boolean
 iGt i j = case i Integer.<= j of λ where
@@ -73,6 +99,8 @@ execDecl (dInit t x e) ρ = case eval ρ e of λ where
   (just v) → just ((x , v) ∷ ρ)
   nothing  → nothing
 
+-- Execution of declarations returns the extended environment.
+
 execDecls : List Decl → Env → Maybe Env
 execDecls [] ρ = just ρ
 execDecls (d ∷ ds) ρ = case execDecl d ρ of λ where
@@ -83,16 +111,6 @@ execDecls (d ∷ ds) ρ = case execDecl d ρ of λ where
 -- and can diverge.
 
 module ExecStm where
-
-  -- TODO: use poor man's solution?
-  -- updateEnv x v ρ = (x , v) ∷ ρ
-
-  updateEnv : Id → Val → Env → Env
-  updateEnv x v []            = (x , v) ∷ []
-  updateEnv x v ((y , w) ∷ ρ) =
-    if x == y
-    then (x , v) ∷ ρ
-    else (y , w) ∷ updateEnv x v ρ
 
   -- Execution is parameterized by a number (fuel : ℕ)
   -- that limits the number of executions of while loops.
@@ -113,6 +131,9 @@ module ExecStm where
         nothing   → nothing
       (just (boolV false)) → just ρ
       _                    → nothing
+
+    -- Execution of a statement sequence, passes the fuel
+    -- to every statement.
 
     execStms : (fuel : ℕ) → List Stm → Env → Maybe Env
     execStms _    []       ρ = just ρ
