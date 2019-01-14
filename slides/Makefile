@@ -3,10 +3,6 @@
 
 agda=agda --html-highlight=auto
 
-whiteTheme=reveal.js/css/theme/white.css
-tweakedBlackTheme=theme.css
-#theme=$(tweakedBlackTheme)
-theme=$(whiteTheme)
 patchTheme=patchTheme.css
 
 default: slides.html
@@ -14,7 +10,7 @@ default: slides.html
 vpath reveal.js $(HOME) .
 
 slides.html: _build/slides.md reveal.js theme.css Agda.css Makefile $(patchTheme)
-	pandoc -t revealjs -V revealjs-url=https://cdn.jsdelivr.net/npm/reveal.js --css=Agda.css --css=$(theme) --css=$(patchTheme) --mathjax -s $< -o $@
+	pandoc -t revealjs -V revealjs-url=https://cdn.jsdelivr.net/npm/reveal.js -V theme="white" --css=Agda.css --css=$(patchTheme) --mathjax -s $< -o $@
 
 _build/slides.md: slides.lagda.md
 	$(agda) --html --html-dir=_build $<
