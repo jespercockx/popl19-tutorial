@@ -6,7 +6,7 @@ slides :
 	make -C slides
 
 src :
-	make -C src
+	make -C src all
 
 test :
 	make -C test
