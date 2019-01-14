@@ -24,16 +24,17 @@ Agda is...
 
 ## Installation
 
-Agda (needs GHC):
-```bash
-cabal install alex happy
-cabal install Agda && agda-mode setup
-```
-Standard library: see [github.com/agda/agda-stdlib](https://github.com/agda/agda-stdlib#quick-installation-instructions)
+For this tutorial, you will need to install **Agda**, the **Agda standard library**, and the **BNFC** tool.
 
-BNFC (also needs `alex` and `happy`):
+- Agda: [github.com/agda/agda](https://github.com/agda/agda)
+- Agda standard library: [github.com/agda/agda-stdlib](https://github.com/agda/agda-stdlib)
+- BNFC: [github.com/BNFC/bnfc](https://github.com/BNFC/bnfc)
+
+Installation instructions:
 ```bash
-cabal install BNFC
+git clone https://github.com/jespercockx/popl19-tutorial
+cd popl19-tutorial
+./setup.sh
 ```
 
 ## Main features of Agda
