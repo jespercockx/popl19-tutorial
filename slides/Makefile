@@ -14,7 +14,7 @@ default: slides.html
 vpath reveal.js $(HOME) .
 
 slides.html: _build/slides.md reveal.js theme.css Agda.css Makefile $(patchTheme)
-	pandoc -t revealjs -V revealjs-url=$(word 2, $^) --css=Agda.css --css=$(theme) --css=$(patchTheme) --mathjax -s $< -o $@
+	pandoc -t revealjs -V revealjs-url=https://cdn.jsdelivr.net/npm/reveal.js --css=Agda.css --css=$(theme) --css=$(patchTheme) --mathjax -s $< -o $@
 
 _build/slides.md: slides.lagda.md
 	$(agda) --html --html-dir=_build $<
