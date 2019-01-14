@@ -16,7 +16,7 @@ data Val : Set where
 
 instance
   PrintVal : Print Val
-  PrintVal .print = λ where
+  print {{PrintVal}} = λ where
     (intV i)  → print i
     (boolV b) → print b
 
