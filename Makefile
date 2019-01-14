@@ -1,14 +1,17 @@
-.PHONY: all parser test slides
+.PHONY: all src test slides parser
 
-all : parser test slides
+all : src slides
 
-parser :
+slides :
+	make -C slides
+
+src :
 	make -C src
 
 test :
 	make -C test
 
-slides :
-	make -C slides
+parser :
+	make -C src parser
 
 # EOF

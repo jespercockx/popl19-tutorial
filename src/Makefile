@@ -1,7 +1,7 @@
 # Makefile for While language
 
 # List of goals not corresponding to file names.
-.PHONY : test sdist clean distclean
+.PHONY : default all test sdist clean distclean html
 
 # BNFC generated parser
 parser=While/Test
@@ -16,6 +16,9 @@ ghcflags=--ghc-flag=-i../haskell --ghc-flag=-Wwarn
 # runwhile.agda must be first
 agdafiles=runwhile.agda Library.agda Library/Eq.agda Library/Monad.agda Library/Print.agda AST.agda Parser.agda WellTypedSyntax.agda TypeChecker.agda Value.agda Delay.agda Interpreter.agda
 
+default : test
+
+all : runwhile html test
 
 runwhile : $(agdafiles) $(parser)
 	$(agda) --compile $(ghcflags) $<
@@ -25,6 +28,9 @@ test : runwhile
 
 parser : $(parser)
 	./$(parser) ../test/gcd.c
+
+html : $(agdafiles)
+	$(agda) --html $<
 
 
 ## Haskell parser
