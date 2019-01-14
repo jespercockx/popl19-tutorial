@@ -8,8 +8,8 @@ Running example:
 
 Language: WHILE-language
 
-1. What is Agda?
-----------------
+What is Agda?
+-------------
 
 Agda is...
 
@@ -65,8 +65,8 @@ hole with a certain function applied to new holes (C-c C-r) or by
 * BNFC: For this tutorial, you also need to install the bnfc package
   from Cabal.
 
-2. Correct-by-construction programming
---------------------------------------
+Correct-by-construction programming
+-----------------------------------
 
 The main reason to use a dependently typed programming language is to
 write programs that can statically be verified to satisfy a given
@@ -96,8 +96,8 @@ In this tutorial, we apply correct-by-construction programming to the
 construction of a typechecker and interpreter for a simple C-like
 language called WHILE (see src/While.cf for the syntax).
 
-3. Simple data types and pattern matching
------------------------------------------
+Simple data types and pattern matching
+--------------------------------------
 
 **Theory**:
 - A (simple) datatype is defined by zero or more constructors
@@ -125,8 +125,8 @@ with non-termination in Agda, the Delay monad.
   ('if/then/else'). (TODO: remove these from the provided code)
   Also update the functions in
 
-4. BNFC and the Haskell FFI
-----------------------------------------
+BNFC and the Haskell FFI
+------------------------
 
 Compared to Haskell, the Agda ecosystem is still rather
 small. However, we can piggyback on the Haskell ecosystem using FFI
@@ -152,8 +152,8 @@ generator via the Haskell FFI.
 TODO: add a parse-only mode so it is possible to test the program
 already?
 
-5. Dependent types and indexed datatypes
-----------------------------------------
+Dependent types and indexed datatypes
+-------------------------------------
 
 **Theory**:
 - Indexed datatypes are families of datatypes indexed over some base
@@ -174,8 +174,8 @@ already?
 **Exercise**: add well-typed syntax for the new additions to the
   language.
 
-6. Monads, instance arguments, and do-notation
-----------------------------------------------
+Monads, instance arguments, and do-notation
+-------------------------------------------
 
 **Theory**: *Instance arguments* are Agda's builtin mechanism for
  ad-hoc overloading (serving a similar role as type classes in
@@ -205,8 +205,8 @@ already?
 **Exercise**: update the typechecker to deal with the new additions to
   the language.
 
-7. Coinduction and sized types
-------------------------------
+Coinduction and sized types
+---------------------------
 
 We saw one crude way to deal with possibly infinite computations in
 Agda in UntypedInterpreter.agda: use a 'fuel' arguments which encodes
