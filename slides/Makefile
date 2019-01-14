@@ -7,13 +7,14 @@ whiteTheme=reveal.js/css/theme/white.css
 tweakedBlackTheme=theme.css
 #theme=$(tweakedBlackTheme)
 theme=$(whiteTheme)
+patchTheme=patchTheme.css
 
 default: slides.html
 
 vpath reveal.js $(HOME) .
 
-slides.html: _build/slides.md reveal.js theme.css Agda.css Makefile
-	pandoc -t revealjs -V revealjs-url=$(word 2, $^) --css=Agda.css --css=$(theme) --css=patchTheme.css --mathjax -s $< -o $@
+slides.html: _build/slides.md reveal.js theme.css Agda.css Makefile $(patchTheme)
+	pandoc -t revealjs -V revealjs-url=$(word 2, $^) --css=Agda.css --css=$(theme) --css=$(patchTheme) --mathjax -s $< -o $@
 
 _build/slides.md: slides.lagda.md
 	$(agda) --html --html-dir=_build $<
