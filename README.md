@@ -6,11 +6,13 @@ Agda tutorial at POPL 2019
 Links
 -----
 
-* [Annoucement](https://popl19.sigplan.org/event/popl-2019-tutorialfest-t5-correct-by-construction-programming-in-agda)
+* [Announcement](https://popl19.sigplan.org/event/popl-2019-tutorialfest-t5-correct-by-construction-programming-in-agda)
 
 * [Slides](slides/slides.html)
 
 * [Code listing](src/html/runwhile.html)
+
+* This README on as Webpage on [github.io](https://jespercockx.github.io/popl19-tutorial/)
 
 Abstract
 --------
