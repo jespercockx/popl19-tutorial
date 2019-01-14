@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Value</title><link rel="stylesheet" href="Agda.css"></head><body><pre><a id="1" class="Comment">-- Values and primitive operations; environments.</a>
+
+<a id="52" class="Keyword">module</a> <a id="59" href="Value.html" class="Module">Value</a> <a id="65" class="Keyword">where</a>
+
+<a id="72" class="Keyword">open</a> <a id="77" class="Keyword">import</a> <a id="84" href="Library.html" class="Module">Library</a>
+<a id="92" class="Keyword">open</a> <a id="97" class="Keyword">import</a> <a id="104" href="WellTypedSyntax.html" class="Module">WellTypedSyntax</a>
+
+<a id="121" class="Comment">-- Well-typed values.</a>
+
+<a id="Val"></a><a id="144" href="Value.html#144" class="Function">Val</a> <a id="148" class="Symbol">:</a> <a id="150" href="AST.html#369" class="Datatype">Type</a> <a id="155" class="Symbol">→</a> <a id="157" class="PrimitiveType">Set</a>
+<a id="161" href="Value.html#144" class="Function">Val</a> <a id="165" href="AST.html#393" class="InductiveConstructor">int</a>    <a id="172" class="Symbol">=</a> <a id="174" href="Agda.Builtin.Int.html#178" class="Datatype">ℤ</a>
+<a id="176" href="Value.html#144" class="Function">Val</a> <a id="180" href="AST.html#388" class="InductiveConstructor">bool</a>   <a id="187" class="Symbol">=</a> <a id="189" href="AST.html#471" class="Datatype">Boolean</a>
+
+<a id="198" class="Keyword">instance</a>
+  <a id="PrintVal"></a><a id="209" href="Value.html#209" class="Function">PrintVal</a> <a id="218" class="Symbol">:</a> <a id="220" class="Symbol">∀</a> <a id="222" class="Symbol">{</a><a id="223" href="Value.html#223" class="Bound">t</a><a id="224" class="Symbol">}</a> <a id="226" class="Symbol">→</a> <a id="228" href="Library.Print.html#196" class="Record">Print</a> <a id="234" class="Symbol">(</a><a id="235" href="Value.html#144" class="Function">Val</a> <a id="239" href="Value.html#223" class="Bound">t</a><a id="240" class="Symbol">)</a>
+  <a id="244" href="Library.Print.html#244" class="Field">print</a> <a id="250" class="Symbol">{{</a><a id="252" href="Value.html#209" class="Function">PrintVal</a> <a id="261" class="Symbol">{</a><a id="262" href="AST.html#393" class="InductiveConstructor">int</a><a id="265" class="Symbol">}</a> <a id="267" class="Symbol">}}</a> <a id="270" href="Value.html#270" class="Bound">i</a> <a id="272" class="Symbol">=</a> <a id="274" href="Library.Print.html#244" class="Field">print</a> <a id="280" class="Symbol">{{</a><a id="282" href="Library.Print.html#539" class="Function">PrintInt</a><a id="290" class="Symbol">}}</a> <a id="293" href="Value.html#270" class="Bound">i</a>
+  <a id="297" href="Library.Print.html#244" class="Field">print</a> <a id="303" class="Symbol">{{</a><a id="305" href="Value.html#209" class="Function">PrintVal</a> <a id="314" class="Symbol">{</a><a id="315" href="AST.html#388" class="InductiveConstructor">bool</a><a id="319" class="Symbol">}}}</a> <a id="323" href="Value.html#323" class="Bound">b</a> <a id="325" class="Symbol">=</a> <a id="327" href="Library.Print.html#244" class="Field">print</a> <a id="333" class="Symbol">{{</a><a id="335" href="AST.html#2312" class="Function">PrintBoolean</a><a id="347" class="Symbol">}}</a> <a id="350" href="Value.html#323" class="Bound">b</a>
+
+<a id="353" class="Comment">-- Well-typed Environments.</a>
+
+<a id="Env"></a><a id="382" href="Value.html#382" class="Function">Env</a> <a id="386" class="Symbol">:</a> <a id="388" href="WellTypedSyntax.html#249" class="Function">Cxt</a> <a id="392" class="Symbol">→</a> <a id="394" class="PrimitiveType">Set</a>
+<a id="398" href="Value.html#382" class="Function">Env</a> <a id="402" class="Symbol">=</a> <a id="404" href="Data.List.All.html#826" class="Datatype">All</a> <a id="408" href="Value.html#144" class="Function">Val</a>
+
+<a id="413" class="Comment">-- Semantics of operations.</a>
+
+<a id="442" class="Comment">-- Boolean negation.</a>
+
+<a id="bNot"></a><a id="464" href="Value.html#464" class="Function">bNot</a> <a id="469" class="Symbol">:</a> <a id="471" href="AST.html#471" class="Datatype">Boolean</a> <a id="479" class="Symbol">→</a> <a id="481" href="AST.html#471" class="Datatype">Boolean</a>
+<a id="489" href="Value.html#464" class="Function">bNot</a> <a id="494" href="AST.html#493" class="InductiveConstructor">true</a>  <a id="500" class="Symbol">=</a> <a id="502" href="AST.html#498" class="InductiveConstructor">false</a>
+<a id="508" href="Value.html#464" class="Function">bNot</a> <a id="513" href="AST.html#498" class="InductiveConstructor">false</a> <a id="519" class="Symbol">=</a> <a id="521" href="AST.html#493" class="InductiveConstructor">true</a>
+
+<a id="527" class="Comment">-- Greater-than on integers.</a>
+
+<a id="iGt"></a><a id="557" href="Value.html#557" class="Function">iGt</a> <a id="561" class="Symbol">:</a> <a id="563" class="Symbol">(</a><a id="564" href="Value.html#564" class="Bound">i</a> <a id="566" href="Value.html#566" class="Bound">j</a> <a id="568" class="Symbol">:</a> <a id="570" href="Agda.Builtin.Int.html#178" class="Datatype">ℤ</a><a id="571" class="Symbol">)</a> <a id="573" class="Symbol">→</a> <a id="575" href="AST.html#471" class="Datatype">Boolean</a>
+<a id="583" href="Value.html#557" class="Function">iGt</a> <a id="587" href="Value.html#587" class="Bound">i</a> <a id="589" href="Value.html#589" class="Bound">j</a> <a id="591" class="Symbol">=</a> <a id="593" href="Function.html#3497" class="Function Operator">case</a> <a id="598" href="Value.html#587" class="Bound">i</a> <a id="600" href="Library.html#2352" class="Function Operator">Integer.&lt;=</a> <a id="611" href="Value.html#589" class="Bound">j</a> <a id="613" href="Function.html#3497" class="Function Operator">of</a> <a id="616" class="Symbol">λ</a> <a id="618" class="Keyword">where</a>
+  <a id="626" href="Agda.Builtin.Bool.html#86" class="InductiveConstructor">false</a> <a id="632" class="Symbol">→</a> <a id="634" href="AST.html#493" class="InductiveConstructor">true</a>
+  <a id="641" href="Agda.Builtin.Bool.html#92" class="InductiveConstructor">true</a>  <a id="647" class="Symbol">→</a> <a id="649" href="AST.html#498" class="InductiveConstructor">false</a>
+</pre></body></html>
