@@ -116,6 +116,7 @@ module Intro where
 ```
 
 ## Example of intrinsic verification
+
 ```agda
   module Intrinsic where
     record Quotient (k l : ℕ) : Set where
@@ -143,6 +144,7 @@ module Intro where
 ## Goal of this tutorial
 
 Implement a correct-by-construction **typechecker** + **interpreter** for a C-like language (WHILE)
+
 ```c
 int main () {
   int n   = 100;
@@ -198,6 +200,7 @@ module SimpleData where
 ```
 
 ## Pattern matching in Agda
+
 ```agda
   not : Bool → Bool
   not true  = false
@@ -322,28 +325,33 @@ module FFI where
 -->
 
 Import a Haskell module:
+
 ```agda
   {-# FOREIGN GHC import HaskellModule.hs #-}
 ```
 
 Bind Haskell function to Agda name:
+
 <!--
 ```
   postulate AgdaType : Set
 ```
 -->
+
 ```agda
   postulate agdaName : AgdaType
   {-# COMPILE GHC agdaName = haskellCode #-}
 ```
 
 Bind Haskell datatype to Agda datatype:
+
 ```
   data D : Set where c₁ c₂ : D
   {-# COMPILE GHC D = data hsData (hsCon₁ | hsCon₂) #-}
 ```
 
 ## Haskell FFI example:
+
 ```haskell
   -- In file `While/Abs.hs`:
   data Type = TBool | TInt
@@ -383,6 +391,7 @@ Testing the grammar: `make parser` will compile the parser and run it on `/test/
 ## Indexed datatypes
 
 **Indexed datatype** = family of datatypes indexed over some base type
+
 <!--
 ```agda
 module IndexedData where
@@ -395,6 +404,7 @@ module IndexedData where
   data Boolean : Set where BTrue BFalse : Boolean
 ```
 -->
+
 ```agda
   data Vec (A : Set) : ℕ → Set where
     []  : Vec A zero
@@ -450,6 +460,7 @@ see `WellTypedSyntax.agda`
 ## Evaluating well-typed syntax
 
 We can now define `eval` for well-typed expressions:
+
 ```
   Val : Type → Set
   Val int    = ℤ
@@ -536,12 +547,14 @@ Extend the typechecker with rules for the new syntactic constructions you added.
 
 Coinductive type may contain infinitely deep values
 (non well-founded trees)
+
 <!--
 ```agda
 module Coinduction where
   module GuardedStream where
 ```
 -->
+
 ```agda
     record Stream (A : Set) : Set where
       coinductive
@@ -570,8 +583,9 @@ Can we do better?
 The `Delay` monad captures the effect of *non-termination*
 
 A value of type `Delay A` is
+
 - either a value of type `A` produced **now**
-- or a computation of type `Delay A` produced **later**
+- or a computation of type `Delay A` producing a value **later**
 
 ## The Delay monad: definition
 
