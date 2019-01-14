@@ -25,8 +25,9 @@ agda-mode setup
 git clone https://github.com/agda/agda-stdlib.git
 cd agda-stdlib && git checkout v0.17 && cabal install
 mkdir $HOME/.agda
-echo $PWD/agda-stdlib/standard-library.agda-lib >> $HOME/.agda/libraries
+echo $PWD/standard-library.agda-lib >> $HOME/.agda/libraries
 echo standard-library >> $HOME/.agda/defaults
+cd ..
 
 # install BNFC (also needs `alex` and `happy`):
 cabal install BNFC
