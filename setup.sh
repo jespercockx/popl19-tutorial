@@ -7,13 +7,12 @@ emacs --version || sudo apt-get install emacs         || exit 1
 sudo apt-get install zlib1g-dev
 
 # install Agda (requires GHC):
-export PATH=$PATH:$HOME/.cabal/bin
+export PATH="$PATH:$HOME/.cabal/bin"
 cabal update
 cabal install alex happy
 cabal get Agda && cd Agda-2.5.4.2 && cabal install 
 
 # make sure agda is on the path
-export PATH=$PATH:$HOME/.cabal/bin
 agda --version || exit 1
 
 # setup emacs mode
